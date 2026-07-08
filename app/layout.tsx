@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   title: "PlopLink",
   description: "Plop your link",
 };
-
+ 
 export default function RootLayout({
   children,
 }: Readonly<{
