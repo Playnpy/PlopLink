@@ -307,7 +307,7 @@ export default function Home() {
               type="text" 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search fos tiroirs..." 
+              placeholder="Recherche ..." 
               className="w-full pl-9 pr-8 py-2 bg-slate-50 text-slate-800 placeholder-slate-400 border-0 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all"
             />
             {searchQuery && (
