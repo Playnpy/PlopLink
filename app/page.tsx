@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type FormEvent, type MouseEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent, type MouseEvent as ReactMouseEvent } from "react";
 import type { Category, PocketItem } from "@/app/types";
 import { autoDetectCategory, getYouTubeVideoTitle } from "@/app/lib/categoryDetection";
 import { useLocalItems } from "@/app/hooks/useLocalItems";
@@ -139,7 +139,7 @@ export default function Home() {
     }
   };
 
-  const handleCopyContent = async (e: MouseEvent, item: PocketItem) => {
+  const handleCopyContent = async (e: ReactMouseEvent, item: PocketItem) => {
     e.stopPropagation();
     if (item.category === "Image") return;
     try {
