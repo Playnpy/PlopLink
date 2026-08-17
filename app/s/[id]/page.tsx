@@ -44,13 +44,35 @@ export default function SharePage({ params }: SharePageProps) {
   }, [id]);
 
   const handleCopy = async (item: PocketItem) => {
-    if (item.category === "Image") return;
     try {
       await navigator.clipboard.writeText(item.content);
       setCopiedId(item.id);
       setTimeout(() => setCopiedId(null), 2000);
     } catch (err) {
       console.error("Erreur lors de la copie", err);
+    }
+  };
+
+  const downloadImage = (item: PocketItem) => {
+    const mimeMatch = item.content.match(/^data:image\/(\w+);base64,/);
+    const extension = mimeMatch ? mimeMatch[1] : "png";
+    const safeName = (item.title || "image").trim().replace(/[\\/:*?"<>|]+/g, "_") || "image";
+
+    const link = document.createElement("a");
+    link.href = item.content;
+    link.download = `${safeName}.${extension}`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleItemClick = (item: PocketItem) => {
+    if (item.category === "Image") {
+      downloadImage(item);
+      setCopiedId(item.id);
+      setTimeout(() => setCopiedId(null), 2000);
+    } else {
+      handleCopy(item);
     }
   };
 
@@ -81,9 +103,9 @@ export default function SharePage({ params }: SharePageProps) {
             {items.map((item) => (
               <div
                 key={item.id}
-                onClick={() => handleCopy(item)}
+                onClick={() => handleItemClick(item)}
                 className="cursor-pointer bg-white p-5 rounded-2xl border border-slate-200/75 shadow-sm hover:shadow-md hover:border-indigo-200 transition-all space-y-3"
-                title="Cliquez pour copier"
+                title={item.category === "Image" ? "Appuyez pour télécharger" : "Appuyez pour copier"}
               >
                 <div className="flex items-center justify-between">
                   <span
@@ -92,11 +114,18 @@ export default function SharePage({ params }: SharePageProps) {
                     <span className="text-sm">{CATEGORY_ICONS[item.category]}</span>
                     <span>{item.category}</span>
                   </span>
-                  {copiedId === item.id && <span className="text-xs font-semibold text-indigo-600">Copié !</span>}
+                  {copiedId === item.id && (
+                    <span className="text-xs font-semibold text-indigo-600">
+                      {item.category === "Image" ? "Téléchargé !" : "Copié !"}
+                    </span>
+                  )}
                 </div>
                 <div className="pointer-events-none">
                   <ItemContent item={item} />
                 </div>
+                {item.category === "Image" && (
+                  <p className="text-[11px] text-slate-400 font-medium">📥 Appuyez sur l'image pour la télécharger</p>
+                )}
               </div>
             ))}
           </div>
