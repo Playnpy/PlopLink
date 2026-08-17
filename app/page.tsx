@@ -10,6 +10,7 @@ import CategoryModal from "@/app/components/CategoryModal";
 import ShareModal from "@/app/components/ShareModal";
 import Toast from "@/app/components/Toast";
 import ItemCard from "@/app/components/ItemCard";
+import ExtensionPromoBanner from "@/app/components/ExtensionPromoBanner";
 
 export default function Home() {
   const [inputValue, setInputValue] = useState("");
@@ -194,6 +195,8 @@ export default function Home() {
             </h1>
             <p className="mt-4 text-lg text-slate-500 font-medium">Votre vide-poche intelligent pour capturer le web.</p>
           </div>
+
+          <ExtensionPromoBanner />
 
           <ComposerForm
             inputValue={inputValue}
