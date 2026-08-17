@@ -45,6 +45,19 @@ export default function Home() {
     reader.readAsDataURL(file);
   };
 
+  // 🧩 Pré-remplissage depuis l'extension Chrome (lien du type /?add=...)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const addParam = params.get("add");
+    if (addParam) {
+      setInputValue(addParam);
+      setSelectedCategory(autoDetectCategory(addParam));
+      window.history.replaceState({}, "", window.location.pathname);
+      textareaRef.current?.focus();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // 📋 Auto-collage : un clic hors des champs de saisie relit le presse-papiers
   useEffect(() => {
     const handleGlobalClickAutoPaste = async (e: MouseEvent) => {
