@@ -1,242 +1,136 @@
 "use client";
 
-import { useEffect, useRef, useState, type FormEvent, type MouseEvent as ReactMouseEvent } from "react";
-import type { Category, PocketItem } from "@/app/types";
-import { autoDetectCategory, getYouTubeVideoTitle } from "@/app/lib/categoryDetection";
-import { useLocalItems } from "@/app/hooks/useLocalItems";
-import Sidebar from "@/app/components/Sidebar";
-import ComposerForm from "@/app/components/ComposerForm";
-import CategoryModal from "@/app/components/CategoryModal";
-import ShareModal from "@/app/components/ShareModal";
-import Toast from "@/app/components/Toast";
-import ItemCard from "@/app/components/ItemCard";
+import { use, useEffect, useState } from "react";
+import type { PocketItem } from "@/app/types";
+import { CATEGORY_BADGE_STYLES, CATEGORY_ICONS } from "@/app/types";
+import ItemContent from "@/app/components/ItemContent";
+import { isSupabaseConfigured, supabase } from "@/app/lib/supabaseClient";
 
-export default function Home() {
-  const [inputValue, setInputValue] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<Category>("Texte");
-  const [attachedImage, setAttachedImage] = useState<string | null>(null);
-  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
-  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
-  const [openSidebarCategories, setOpenSidebarCategories] = useState<Record<string, boolean>>({});
-  const [items, setItems] = useLocalItems();
+interface SharePageProps {
+  params: Promise<{ id: string }>;
+}
 
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+export default function SharePage({ params }: SharePageProps) {
+  const { id } = use(params);
+  const [items, setItems] = useState<PocketItem[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
-  const displayedItems = items.filter((item) => {
-    const query = searchQuery.toLowerCase().trim();
-    if (!query) return true;
-    return (
-      item.content.toLowerCase().includes(query) ||
-      (item.title?.toLowerCase().includes(query) ?? false) ||
-      item.category.toLowerCase().includes(query)
-    );
-  });
-
-  const handleImageFile = (file: File) => {
-    if (!file.type.startsWith("image/")) return;
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setAttachedImage(reader.result as string);
-      setSelectedCategory("Image");
-      setInputValue(file.name);
-    };
-    reader.readAsDataURL(file);
-  };
-
-  // 📋 Auto-collage : un clic hors des champs de saisie relit le presse-papiers
   useEffect(() => {
-    const handleGlobalClickAutoPaste = async (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      if (target.closest(".prevent-autopaste") || target.closest("input") || target.closest("textarea")) {
-        return;
-      }
-      try {
-        if (navigator.clipboard && navigator.clipboard.readText) {
-          const text = await navigator.clipboard.readText();
-          if (text.trim() && text !== inputValue) {
-            setInputValue(text);
-            setSelectedCategory(autoDetectCategory(text));
-          }
+    if (!isSupabaseConfigured) {
+      setError("Supabase n'est pas configuré sur ce déploiement.");
+      return;
+    }
+
+    let cancelled = false;
+
+    supabase
+      .from("shares")
+      .select("items")
+      .eq("id", id)
+      .single()
+      .then(({ data, error: fetchError }) => {
+        if (cancelled) return;
+        if (fetchError || !data) {
+          setError("Ce lien de partage est introuvable ou a expiré.");
+          return;
         }
-      } catch {
-        console.log("Presse-papiers bloqué ou vide");
-      }
+        setItems(data.items as PocketItem[]);
+      });
+
+    return () => {
+      cancelled = true;
     };
+  }, [id]);
 
-    window.addEventListener("click", handleGlobalClickAutoPaste);
-    return () => window.removeEventListener("click", handleGlobalClickAutoPaste);
-  }, [inputValue]);
-
-  // Re-détecte la catégorie à chaque frappe (sauf si une image est attachée)
-  useEffect(() => {
-    if (inputValue && selectedCategory !== "Image") {
-      setSelectedCategory(autoDetectCategory(inputValue));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [inputValue]);
-
-  // Colle une image depuis le presse-papiers (Ctrl+V)
-  useEffect(() => {
-    const handlePaste = (e: ClipboardEvent) => {
-      const clipboardItems = e.clipboardData?.items;
-      if (!clipboardItems) return;
-      for (let i = 0; i < clipboardItems.length; i++) {
-        if (clipboardItems[i].type.indexOf("image") !== -1) {
-          const file = clipboardItems[i].getAsFile();
-          if (file) {
-            handleImageFile(file);
-            e.preventDefault();
-          }
-        }
-      }
-    };
-    window.addEventListener("paste", handlePaste);
-    return () => window.removeEventListener("paste", handlePaste);
-  }, []);
-
-  const handleSave = (e: FormEvent) => {
-    e.preventDefault();
-    if (!inputValue.trim() && !attachedImage) return;
-
-    let itemTitle: string | undefined;
-    if (selectedCategory === "YouTube") {
-      itemTitle = getYouTubeVideoTitle(inputValue);
-    } else if (selectedCategory === "Image") {
-      itemTitle = inputValue;
-    } else if (selectedCategory === "Google Maps") {
-      itemTitle = "Point d'intérêt Google Maps";
-    }
-
-    const timeString = new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
-
-    const newItem: PocketItem = {
-      id: Date.now().toString(),
-      category: selectedCategory,
-      content: selectedCategory === "Image" && attachedImage ? attachedImage : inputValue,
-      title: itemTitle,
-      createdAt: `Aujourd'hui à ${timeString}`,
-    };
-
-    setItems([newItem, ...items]);
-    setInputValue("");
-    setAttachedImage(null);
-    setSelectedCategory("Texte");
-  };
-
-  const handleEditTitle = (itemId: string, currentTitle?: string) => {
-    const newAlias = prompt("Entrez un alias ou un titre personnalisé :", currentTitle || "");
-    if (newAlias === null) return;
-    setItems((prev) =>
-      prev.map((item) => (item.id === itemId ? { ...item, title: newAlias.trim() || undefined } : item))
-    );
-  };
-
-  const handleDelete = (itemId: string) => {
-    if (window.confirm("Êtes-vous sûr de vouloir supprimer cet élément ?")) {
-      setItems((prev) => prev.filter((item) => item.id !== itemId));
-    }
-  };
-
-  const handleCopyContent = async (e: ReactMouseEvent, item: PocketItem) => {
-    e.stopPropagation();
-    if (item.category === "Image") return;
+  const handleCopy = async (item: PocketItem) => {
     try {
       await navigator.clipboard.writeText(item.content);
-      setToastMessage("Contenu copié dans le presse-papiers");
-      setTimeout(() => setToastMessage(null), 2500);
+      setCopiedId(item.id);
+      setTimeout(() => setCopiedId(null), 2000);
     } catch (err) {
       console.error("Erreur lors de la copie", err);
     }
   };
 
-  const toggleSidebarCategory = (cat: string) => {
-    setOpenSidebarCategories((prev) => ({ ...prev, [cat]: !prev[cat] }));
+  const downloadImage = (item: PocketItem) => {
+    const mimeMatch = item.content.match(/^data:image\/(\w+);base64,/);
+    const extension = mimeMatch ? mimeMatch[1] : "png";
+    const safeName = (item.title || "image").trim().replace(/[\\/:*?"<>|]+/g, "_") || "image";
+
+    const link = document.createElement("a");
+    link.href = item.content;
+    link.download = `${safeName}.${extension}`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleItemClick = (item: PocketItem) => {
+    if (item.category === "Image") {
+      downloadImage(item);
+      setCopiedId(item.id);
+      setTimeout(() => setCopiedId(null), 2000);
+    } else {
+      handleCopy(item);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA] text-slate-900 flex font-sans relative">
-      <Sidebar
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-        displayedItems={displayedItems}
-        openSidebarCategories={openSidebarCategories}
-        onToggleCategory={toggleSidebarCategory}
-        onCopy={handleCopyContent}
-        onEditTitle={handleEditTitle}
-        onDelete={handleDelete}
-        onOpenShare={() => setIsShareModalOpen(true)}
-      />
-
-      <main className="flex-1 flex flex-col items-center p-6 sm:p-10 overflow-y-auto">
-        <div className="w-full max-w-4xl space-y-10">
-          <div className="text-center pt-4">
-            <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight flex items-center justify-center text-slate-900 drop-shadow-sm">
-              Plop
-              <span className="text-indigo-600 relative">
-                Link
-                <span className="absolute -right-3 bottom-2 md:bottom-3 w-2.5 h-2.5 md:w-3 md:h-3 bg-orange-500 rounded-full shadow-sm"></span>
-              </span>
-            </h1>
-            <p className="mt-4 text-lg text-slate-500 font-medium">Votre vide-poche intelligent pour capturer le web.</p>
-          </div>
-
-          <ComposerForm
-            inputValue={inputValue}
-            onInputChange={setInputValue}
-            attachedImage={attachedImage}
-            onRemoveImage={() => {
-              setAttachedImage(null);
-              setInputValue("");
-              setSelectedCategory("Texte");
-            }}
-            selectedCategory={selectedCategory}
-            onOpenCategoryModal={() => setIsCategoryModalOpen(true)}
-            onSubmit={handleSave}
-            textareaRef={textareaRef}
-          />
-
-          <div className="pt-4">
-            <h2 className="text-xl font-extrabold text-slate-800 mb-6 px-1 flex items-center space-x-2">
-              <span>{searchQuery ? "Résultats de recherche" : "Flux récent"}</span>
-              <span className="text-sm font-medium text-slate-400 bg-slate-200/50 px-2.5 py-0.5 rounded-full">
-                {displayedItems.length}
-              </span>
-            </h2>
-
-            {displayedItems.length === 0 ? (
-              <div className="bg-white rounded-2xl border border-slate-100 border-dashed p-12 flex flex-col items-center justify-center text-center">
-                <span className="text-4xl mb-4 opacity-50">🔍</span>
-                <p className="text-slate-500 font-medium">Aucun tiroir ne contient cet élément.</p>
-                <p className="text-sm text-slate-400 mt-1">Essaye avec un autre mot-clé ou vide la recherche.</p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                {displayedItems.map((item) => (
-                  <ItemCard key={item.id} item={item} onCopy={handleCopyContent} onDelete={handleDelete} />
-                ))}
-              </div>
-            )}
-          </div>
+    <div className="min-h-screen bg-[#F8F9FA] text-slate-900 flex flex-col items-center p-6 sm:p-10">
+      <div className="w-full max-w-2xl space-y-8">
+        <div className="text-center pt-4">
+          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">
+            Plop<span className="text-indigo-600">Link</span>
+          </h1>
+          <p className="mt-2 text-slate-500 font-medium">Contenu partagé depuis votre bibliothèque.</p>
         </div>
-      </main>
 
-      {isCategoryModalOpen && (
-        <CategoryModal
-          selectedCategory={selectedCategory}
-          onSelect={(cat) => {
-            setSelectedCategory(cat);
-            if (cat !== "Image") setAttachedImage(null);
-            setIsCategoryModalOpen(false);
-          }}
-          onClose={() => setIsCategoryModalOpen(false)}
-        />
-      )}
+        {error && (
+          <div className="bg-white rounded-2xl border border-slate-100 border-dashed p-10 text-center text-slate-500">
+            {error}
+          </div>
+        )}
 
-      {isShareModalOpen && <ShareModal items={items} onClose={() => setIsShareModalOpen(false)} />}
+        {!error && items === null && (
+          <div className="bg-white rounded-2xl border border-slate-100 border-dashed p-10 text-center text-slate-400">
+            Chargement...
+          </div>
+        )}
 
-      {toastMessage && <Toast message={toastMessage} />}
+        {items && (
+          <div className="space-y-3">
+            {items.map((item) => (
+              <div
+                key={item.id}
+                onClick={() => handleItemClick(item)}
+                className="cursor-pointer bg-white p-5 rounded-2xl border border-slate-200/75 shadow-sm hover:shadow-md hover:border-indigo-200 transition-all space-y-3"
+                title={item.category === "Image" ? "Appuyez pour télécharger" : "Appuyez pour copier"}
+              >
+                <div className="flex items-center justify-between">
+                  <span
+                    className={`text-xs font-bold px-3 py-1.5 rounded-lg flex items-center space-x-1.5 ${CATEGORY_BADGE_STYLES[item.category]}`}
+                  >
+                    <span className="text-sm">{CATEGORY_ICONS[item.category]}</span>
+                    <span>{item.category}</span>
+                  </span>
+                  {copiedId === item.id && (
+                    <span className="text-xs font-semibold text-indigo-600">
+                      {item.category === "Image" ? "Téléchargé !" : "Copié !"}
+                    </span>
+                  )}
+                </div>
+                <div className="pointer-events-none">
+                  <ItemContent item={item} />
+                </div>
+                {item.category === "Image" && (
+                  <p className="text-[11px] text-slate-400 font-medium">📥 Appuyez sur l'image pour la télécharger</p>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
