@@ -3,7 +3,6 @@
 import { useMemo, useState } from "react";
 import QRCode from "qrcode";
 import { CATEGORY_ICONS, type PocketItem } from "@/app/types";
-import { isSupabaseConfigured, supabase } from "@/app/lib/supabaseClient";
 
 interface ShareModalProps {
   items: PocketItem[];
@@ -44,34 +43,32 @@ export default function ShareModal({ items, onClose }: ShareModalProps) {
   const handleSend = async () => {
     if (selectedCount === 0) return;
 
-    if (!isSupabaseConfigured) {
-      setError(
-        "Supabase n'est pas encore configuré. Renseignez NEXT_PUBLIC_SUPABASE_URL et NEXT_PUBLIC_SUPABASE_ANON_KEY dans .env.local (voir supabase/schema.sql)."
-      );
-      return;
-    }
-
     setIsSending(true);
     setError(null);
 
     try {
-      const { data, error: insertError } = await supabase
-        .from("shares")
-        .insert({ items: selectedItems })
-        .select("id")
-        .single();
+      const response = await fetch("/api/share", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ items: selectedItems }),
+      });
 
-      if (insertError || !data) {
-        throw insertError ?? new Error("Réponse vide de Supabase");
+      const payload = await response.json().catch(() => null);
+
+      if (!response.ok) {
+        throw new Error(payload?.error || `Le serveur a répondu ${response.status}`);
+      }
+      if (!payload?.id) {
+        throw new Error("Réponse inattendue du serveur");
       }
 
-      const shareUrl = `${window.location.origin}/s/${data.id}`;
+      const shareUrl = `${window.location.origin}/s/${payload.id}`;
       const qrDataUrl = await QRCode.toDataURL(shareUrl, { margin: 1, width: 260 });
 
       setResult({ url: shareUrl, qrDataUrl });
     } catch (err) {
       console.error("Erreur lors de l'envoi", err);
-      setError("L'envoi a échoué. Vérifiez votre connexion et la configuration Supabase.");
+      setError(err instanceof Error ? err.message : "L'envoi a échoué. Vérifiez votre connexion.");
     } finally {
       setIsSending(false);
     }
