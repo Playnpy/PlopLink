@@ -3,13 +3,25 @@
 import { useMemo, useState } from "react";
 import { marked } from "marked";
 
+// marked doesn't sanitize embedded raw HTML by default (e.g. a pasted
+// <script> tag would be preserved verbatim). This tool never saves or
+// shares its content, so the risk is self-contained to the current tab —
+// but this still strips the sharpest footguns before injecting the output.
+function sanitizeHtml(html: string): string {
+  return html
+    .replace(/<script[\s\S]*?<\/script>/gi, "")
+    .replace(/\son\w+="[^"]*"/gi, "")
+    .replace(/\son\w+='[^']*'/gi, "")
+    .replace(/javascript:/gi, "");
+}
+
 export default function MarkdownPreviewTool() {
   const [input, setInput] = useState("");
 
   const html = useMemo(() => {
     if (!input.trim()) return "";
     try {
-      return marked.parse(input, { async: false }) as string;
+      return sanitizeHtml(marked.parse(input, { async: false }) as string);
     } catch {
       return "";
     }

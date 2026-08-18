@@ -2,9 +2,21 @@
 
 export type NumberBase = 2 | 8 | 10 | 16;
 
+const BASE_PATTERNS: Record<NumberBase, RegExp> = {
+  2: /^-?[01]+$/,
+  8: /^-?[0-7]+$/,
+  10: /^-?[0-9]+$/,
+  16: /^-?[0-9a-fA-F]+$/,
+};
+
 export function convertBases(value: string, fromBase: NumberBase): Record<NumberBase, string> | null {
   const trimmed = value.trim();
   if (!trimmed) return null;
+  // parseInt silently stops at the first invalid character instead of
+  // rejecting the whole input (e.g. parseInt("102", 2) === 1) — validate
+  // the full string against the base first so bad input is actually caught.
+  if (!BASE_PATTERNS[fromBase].test(trimmed)) return null;
+
   const parsed = parseInt(trimmed, fromBase);
   if (Number.isNaN(parsed)) return null;
   return {

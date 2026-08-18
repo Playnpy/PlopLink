@@ -229,7 +229,7 @@ export default function ToolboxModal() {
   return (
     <>
       <div
-        className="group/toolbox fixed right-5 bottom-6 z-40 flex flex-col items-center gap-3"
+        className="prevent-autopaste group/toolbox fixed right-5 bottom-6 z-40 flex flex-col items-center gap-3"
         onMouseEnter={() => setIsPaletteOpen(true)}
         onMouseLeave={closeAll}
       >
@@ -289,7 +289,7 @@ export default function ToolboxModal() {
       </div>
 
       {isCatalogOpen && (
-        <div className="fixed inset-0 bg-slate-900/30 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div className="prevent-autopaste fixed inset-0 bg-slate-900/30 backdrop-blur-sm flex items-center justify-center p-4 z-50">
           <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-3xl w-full p-6 shadow-2xl border border-slate-100 dark:border-slate-800 space-y-5 max-h-[85vh] flex flex-col">
             <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3 shrink-0">
               <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">🧰 All utilities</h3>
@@ -368,7 +368,7 @@ export default function ToolboxModal() {
       )}
 
       {activeTool && ActiveComponent && (
-        <div className="fixed inset-0 bg-slate-900/20 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div className="prevent-autopaste fixed inset-0 bg-slate-900/20 backdrop-blur-sm flex items-center justify-center p-4 z-50">
           <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-2xl w-full p-6 shadow-2xl border border-slate-100 dark:border-slate-800 space-y-4 max-h-[85vh] flex flex-col">
             <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3 shrink-0">
               <h3 className="text-base font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">

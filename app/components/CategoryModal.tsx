@@ -11,7 +11,7 @@ export default function CategoryModal({ selectedCategory, onSelect, onClose }: C
   useEscapeKey(onClose);
 
   return (
-    <div className="fixed inset-0 bg-slate-900/20 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+    <div className="prevent-autopaste fixed inset-0 bg-slate-900/20 backdrop-blur-sm flex items-center justify-center p-4 z-50">
       <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-100 dark:border-slate-800 space-y-5">
         <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
           <h3 className="text-base font-bold text-slate-800 dark:text-slate-100">Force a category</h3>

@@ -22,7 +22,7 @@ export default function ExtensionPromoBanner() {
   if (!isVisible) return null;
 
   return (
-    <div className="flex items-center justify-between gap-4 bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900 rounded-2xl px-5 py-3.5">
+    <div className="prevent-autopaste flex items-center justify-between gap-4 bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900 rounded-2xl px-5 py-3.5">
       <div className="flex items-center gap-3">
         <span className="text-2xl shrink-0">🧩</span>
         <p className="text-sm text-indigo-900 dark:text-indigo-200">

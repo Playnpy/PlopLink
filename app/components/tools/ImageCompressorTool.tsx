@@ -28,31 +28,55 @@ export default function ImageCompressorTool() {
     if (!f.type.startsWith("image/")) return;
     setFile(f);
     const img = new window.Image();
-    img.onload = () => setImageEl(img);
-    img.src = URL.createObjectURL(f);
+    const objectUrl = URL.createObjectURL(f);
+    img.onload = () => {
+      setImageEl(img);
+      // The image is decoded into `img` at this point — the object URL
+      // itself is no longer needed and would otherwise leak.
+      URL.revokeObjectURL(objectUrl);
+    };
+    img.src = objectUrl;
   };
+
+  // Revoke the last compressed-result URL when this tool is closed/unmounted.
+  useEffect(() => {
+    return () => {
+      setResultUrl((prev) => {
+        if (prev) URL.revokeObjectURL(prev);
+        return prev;
+      });
+    };
+  }, []);
 
   useEffect(() => {
     if (!imageEl || !canvasRef.current) return;
-    const canvas = canvasRef.current;
-    canvas.width = imageEl.naturalWidth;
-    canvas.height = imageEl.naturalHeight;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-    ctx.drawImage(imageEl, 0, 0);
 
-    canvas.toBlob(
-      (blob) => {
-        if (!blob) return;
-        setResultUrl((prev) => {
-          if (prev) URL.revokeObjectURL(prev);
-          return URL.createObjectURL(blob);
-        });
-        setResultSize(blob.size);
-      },
-      format,
-      format === "image/png" ? undefined : quality
-    );
+    // Light debounce so dragging the quality slider doesn't re-encode the
+    // full image on every single intermediate value.
+    const timeout = setTimeout(() => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      canvas.width = imageEl.naturalWidth;
+      canvas.height = imageEl.naturalHeight;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+      ctx.drawImage(imageEl, 0, 0);
+
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) return;
+          setResultUrl((prev) => {
+            if (prev) URL.revokeObjectURL(prev);
+            return URL.createObjectURL(blob);
+          });
+          setResultSize(blob.size);
+        },
+        format,
+        format === "image/png" ? undefined : quality
+      );
+    }, 120);
+
+    return () => clearTimeout(timeout);
   }, [imageEl, quality, format]);
 
   const handleDragOver = (e: DragEvent<HTMLLabelElement>) => {

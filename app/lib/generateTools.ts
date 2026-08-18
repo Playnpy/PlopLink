@@ -28,15 +28,29 @@ export function generatePassword(options: PasswordOptions): string {
 
 export function passwordStrength(password: string): { label: string; score: number } {
   if (!password) return { label: "—", score: 0 };
-  let variety = 0;
-  if (/[a-z]/.test(password)) variety++;
-  if (/[A-Z]/.test(password)) variety++;
-  if (/[0-9]/.test(password)) variety++;
-  if (/[^a-zA-Z0-9]/.test(password)) variety++;
 
-  const bits = Math.log2(Math.pow(variety * 20, password.length) || 1);
+  let poolSize = 0;
+  let varietyCount = 0;
+  if (/[a-z]/.test(password)) {
+    poolSize += 26;
+    varietyCount++;
+  }
+  if (/[A-Z]/.test(password)) {
+    poolSize += 26;
+    varietyCount++;
+  }
+  if (/[0-9]/.test(password)) {
+    poolSize += 10;
+    varietyCount++;
+  }
+  if (/[^a-zA-Z0-9]/.test(password)) {
+    poolSize += 32;
+    varietyCount++;
+  }
 
-  if (password.length < 8 || variety < 2) return { label: "Weak", score: 1 };
+  const bits = Math.log2(Math.pow(poolSize || 1, password.length));
+
+  if (password.length < 8 || varietyCount < 2) return { label: "Weak", score: 1 };
   if (bits < 60) return { label: "Fair", score: 2 };
   if (bits < 100) return { label: "Good", score: 3 };
   return { label: "Strong", score: 4 };

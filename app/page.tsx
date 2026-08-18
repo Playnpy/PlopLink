@@ -28,6 +28,10 @@ export default function Home() {
   const [items, setItems] = useLocalItems();
   const [qrModalItem, setQrModalItem] = useState<PocketItem | null>(null);
   const [toolsModalItem, setToolsModalItem] = useState<PocketItem | null>(null);
+  // True once the user manually forces a category via the category modal —
+  // prevents every subsequent keystroke from silently re-detecting and
+  // overriding their explicit choice.
+  const [isCategoryLocked, setIsCategoryLocked] = useState(false);
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -50,6 +54,7 @@ export default function Home() {
       setAttachedImage(reader.result as string);
       setSelectedCategory("Image");
       setInputValue(file.name);
+      setIsCategoryLocked(false);
     };
     reader.readAsDataURL(file);
   };
@@ -67,8 +72,10 @@ export default function Home() {
       const reader = new FileReader();
       reader.onload = () => {
         const text = String(reader.result || "");
+        setAttachedImage(null);
         setInputValue(text);
         setSelectedCategory(autoDetectCategory(text));
+        setIsCategoryLocked(false);
       };
       reader.readAsText(file);
       return;
@@ -85,6 +92,7 @@ export default function Home() {
     if (addParam) {
       setInputValue(addParam);
       setSelectedCategory(autoDetectCategory(addParam));
+      setIsCategoryLocked(false);
       window.history.replaceState({}, "", window.location.pathname);
       textareaRef.current?.focus();
     }
@@ -104,6 +112,7 @@ export default function Home() {
           if (text.trim() && text !== inputValue) {
             setInputValue(text);
             setSelectedCategory(autoDetectCategory(text));
+            setIsCategoryLocked(false);
           }
         }
       } catch {
@@ -115,9 +124,10 @@ export default function Home() {
     return () => window.removeEventListener("click", handleGlobalClickAutoPaste);
   }, [inputValue]);
 
-  // Re-detect the category on every keystroke (unless an image is attached)
+  // Re-detect the category on every keystroke — unless an image is attached,
+  // or the user has manually forced a category for this draft.
   useEffect(() => {
-    if (inputValue && selectedCategory !== "Image") {
+    if (inputValue && selectedCategory !== "Image" && !isCategoryLocked) {
       setSelectedCategory(autoDetectCategory(inputValue));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -169,6 +179,7 @@ export default function Home() {
     setInputValue("");
     setAttachedImage(null);
     setSelectedCategory("Text");
+    setIsCategoryLocked(false);
   };
 
   const handleEditTitle = (itemId: string, currentTitle?: string) => {
@@ -243,6 +254,7 @@ export default function Home() {
               setAttachedImage(null);
               setInputValue("");
               setSelectedCategory("Text");
+              setIsCategoryLocked(false);
             }}
             selectedCategory={selectedCategory}
             onOpenCategoryModal={() => setIsCategoryModalOpen(true)}
@@ -289,6 +301,7 @@ export default function Home() {
           selectedCategory={selectedCategory}
           onSelect={(cat) => {
             setSelectedCategory(cat);
+            setIsCategoryLocked(true);
             if (cat !== "Image") setAttachedImage(null);
             setIsCategoryModalOpen(false);
           }}
