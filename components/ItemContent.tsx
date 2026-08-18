@@ -14,7 +14,7 @@ export default function ItemContent({ item }: { item: PocketItem }) {
     );
   }
 
-  if (item.category === "Mail" || item.category === "Téléphone") {
+  if (item.category === "Email" || item.category === "Phone") {
     return <span className="text-indigo-600 hover:underline break-all font-medium">{item.content}</span>;
   }
 
@@ -27,7 +27,7 @@ export default function ItemContent({ item }: { item: PocketItem }) {
     );
   }
 
-  if (item.category === "Liens web" || item.category === "Google Maps") {
+  if (item.category === "Web Link" || item.category === "Google Maps") {
     return (
       <div className="space-y-0.5">
         {item.title && <p className="font-semibold text-slate-800 text-sm">{item.title}</p>}

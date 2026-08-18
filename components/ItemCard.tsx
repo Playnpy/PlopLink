@@ -12,7 +12,7 @@ export default function ItemCard({ item, onCopy, onDelete }: ItemCardProps) {
   return (
     <div
       onClick={(e) => onCopy(e, item)}
-      title="Cliquez pour copier"
+      title="Click to copy"
       className="prevent-autopaste cursor-pointer bg-white p-5 rounded-2xl border border-slate-200/75 shadow-sm hover:shadow-md hover:border-indigo-200 transition-all flex flex-col space-y-4 relative group/card"
     >
       <button
@@ -21,7 +21,7 @@ export default function ItemCard({ item, onCopy, onDelete }: ItemCardProps) {
           onDelete(item.id);
         }}
         className="absolute top-4 right-4 text-slate-300 hover:text-red-500 opacity-0 group-hover/card:opacity-100 transition-opacity border-none outline-none"
-        title="Supprimer"
+        title="Delete"
       >
         ✕
       </button>

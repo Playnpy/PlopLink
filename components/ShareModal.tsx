@@ -56,10 +56,10 @@ export default function ShareModal({ items, onClose }: ShareModalProps) {
       const payload = await response.json().catch(() => null);
 
       if (!response.ok) {
-        throw new Error(payload?.error || `Le serveur a répondu ${response.status}`);
+        throw new Error(payload?.error || `Server responded with ${response.status}`);
       }
       if (!payload?.id) {
-        throw new Error("Réponse inattendue du serveur");
+        throw new Error("Unexpected server response");
       }
 
       const shareUrl = `${window.location.origin}/s/${payload.id}`;
@@ -67,8 +67,8 @@ export default function ShareModal({ items, onClose }: ShareModalProps) {
 
       setResult({ url: shareUrl, qrDataUrl });
     } catch (err) {
-      console.error("Erreur lors de l'envoi", err);
-      setError(err instanceof Error ? err.message : "L'envoi a échoué. Vérifiez votre connexion.");
+      console.error("Error while sending", err);
+      setError(err instanceof Error ? err.message : "Sending failed. Check your connection.");
     } finally {
       setIsSending(false);
     }
@@ -81,7 +81,7 @@ export default function ShareModal({ items, onClose }: ShareModalProps) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      console.error("Erreur lors de la copie du lien", err);
+      console.error("Error copying the link", err);
     }
   };
 
@@ -90,7 +90,7 @@ export default function ShareModal({ items, onClose }: ShareModalProps) {
       <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100 space-y-5 max-h-[85vh] flex flex-col">
         <div className="flex items-center justify-between border-b border-slate-100 pb-3 shrink-0">
           <h3 className="text-base font-bold text-slate-800">
-            {result ? "Scannez pour récupérer" : "Envoyer sur mon téléphone"}
+            {result ? "Scan to retrieve" : "Send to my phone"}
           </h3>
           <button onClick={onClose} className="text-slate-400 hover:text-slate-700 transition-colors border-none outline-none">
             ✕
@@ -100,10 +100,10 @@ export default function ShareModal({ items, onClose }: ShareModalProps) {
         {result ? (
           <div className="flex flex-col items-center space-y-4 py-2">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={result.qrDataUrl} alt="QR code du partage" className="rounded-xl border border-slate-100" />
+            <img src={result.qrDataUrl} alt="Share QR code" className="rounded-xl border border-slate-100" />
             <p className="text-sm text-slate-500 text-center">
-              Scannez ce QR code avec votre téléphone pour retrouver les {selectedCount} élément
-              {selectedCount > 1 ? "s" : ""} sélectionné{selectedCount > 1 ? "s" : ""}.
+              Scan this QR code with your phone to retrieve the {selectedCount} selected item
+              {selectedCount > 1 ? "s" : ""}.
             </p>
             <div className="w-full flex items-center space-x-2">
               <input
@@ -115,7 +115,7 @@ export default function ShareModal({ items, onClose }: ShareModalProps) {
                 onClick={handleCopyLink}
                 className="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg transition shrink-0"
               >
-                {copied ? "Copié !" : "Copier"}
+                {copied ? "Copied!" : "Copy"}
               </button>
             </div>
           </div>
@@ -123,20 +123,20 @@ export default function ShareModal({ items, onClose }: ShareModalProps) {
           <>
             <div className="flex items-center justify-between shrink-0">
               <p className="text-xs text-slate-500">
-                {selectedCount} sur {items.length} sélectionné{items.length > 1 ? "s" : ""}
+                {selectedCount} of {items.length} selected
               </p>
               <button
                 type="button"
                 onClick={toggleAll}
                 className="text-xs font-semibold text-indigo-600 hover:text-indigo-700"
               >
-                {allSelected ? "Tout désélectionner" : "Tout sélectionner"}
+                {allSelected ? "Deselect all" : "Select all"}
               </button>
             </div>
 
             <div className="flex-1 overflow-y-auto space-y-1.5 -mx-1 px-1">
               {items.length === 0 ? (
-                <p className="text-sm text-slate-400 italic py-4 text-center">Votre bibliothèque est vide.</p>
+                <p className="text-sm text-slate-400 italic py-4 text-center">Your library is empty.</p>
               ) : (
                 items.map((item) => (
                   <label
@@ -166,7 +166,7 @@ export default function ShareModal({ items, onClose }: ShareModalProps) {
               disabled={selectedCount === 0 || isSending}
               className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-200 disabled:text-slate-400 text-white text-sm font-bold rounded-xl transition shadow-md shadow-indigo-200 active:scale-95 shrink-0"
             >
-              {isSending ? "Envoi en cours..." : "Envoyer"}
+              {isSending ? "Sending..." : "Send"}
             </button>
           </>
         )}

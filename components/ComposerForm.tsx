@@ -34,7 +34,7 @@ export default function ComposerForm({
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={attachedImage}
-                alt="Aperçu"
+                alt="Preview"
                 className="max-h-48 rounded-lg object-contain shadow-sm border-0 border-none outline-none ring-0"
               />
             </div>
@@ -43,7 +43,7 @@ export default function ComposerForm({
               onClick={onRemoveImage}
               className="absolute top-4 right-4 bg-slate-800/80 backdrop-blur-sm text-white rounded-full px-3 py-1.5 text-xs font-semibold hover:bg-red-600 shadow-sm transition-colors border-none outline-none"
             >
-              ✕ Retirer
+              ✕ Remove
             </button>
           </div>
         )}
@@ -52,7 +52,7 @@ export default function ComposerForm({
           ref={textareaRef}
           value={inputValue}
           onChange={(e) => onInputChange(e.target.value)}
-          placeholder="Glissez une image ou collez un contenu ici..."
+          placeholder="Drag an image or paste content here..."
           rows={3}
           className="w-full p-5 text-base md:text-lg text-slate-800 placeholder-slate-400 focus:outline-none resize-none bg-transparent border-none"
         />
@@ -76,7 +76,7 @@ export default function ComposerForm({
             onClick={(e) => e.stopPropagation()}
             className="px-8 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-xl transition shadow-md shadow-indigo-200 active:scale-95 border-none outline-none"
           >
-            Enregistrer
+            Save
           </button>
         </div>
       </form>

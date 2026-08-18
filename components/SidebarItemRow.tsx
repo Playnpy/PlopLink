@@ -14,7 +14,7 @@ export default function SidebarItemRow({ item, onCopy, onEditTitle, onDelete }: 
     <div
       onClick={(e) => onCopy(e, item)}
       className="prevent-autopaste cursor-pointer group/item relative py-1.5 px-2 hover:bg-white rounded-lg border border-transparent hover:border-slate-100 hover:shadow-sm transition"
-      title="Cliquez pour copier"
+      title="Click to copy"
     >
       <div className="flex justify-between items-center mb-1 text-[9px] text-slate-400 font-medium">
         <span>{item.createdAt}</span>
@@ -27,7 +27,7 @@ export default function SidebarItemRow({ item, onCopy, onEditTitle, onDelete }: 
               onEditTitle(item.id, item.title);
             }}
             className="opacity-0 group-hover/item:opacity-100 text-slate-400 hover:text-indigo-600 transition"
-            title="Modifier l'alias"
+            title="Edit alias"
           >
             ✏️
           </button>
@@ -38,7 +38,7 @@ export default function SidebarItemRow({ item, onCopy, onEditTitle, onDelete }: 
               onDelete(item.id);
             }}
             className="opacity-0 group-hover/item:opacity-100 text-slate-400 hover:text-red-500 transition"
-            title="Supprimer"
+            title="Delete"
           >
             ✕
           </button>
