@@ -5,8 +5,8 @@ import { CATEGORIES } from "@/app/types";
 export const runtime = "nodejs";
 
 const MAX_ITEMS = 20;
-const MAX_CONTENT_LENGTH = 500_000; // ~500 KB per item (covers reasonably-sized base64 images)
-const MAX_PAYLOAD_BYTES = 4_000_000; // 4 MB total per share
+const MAX_CONTENT_LENGTH = 3_000_000; // ~3M chars (~2.2 MB decoded) — covers real phone photos, not just thumbnails
+const MAX_PAYLOAD_BYTES = 4_000_000; // ~4 MB total — stays safely under Vercel's ~4.5 MB request body ceiling
 const SHARE_TTL_DAYS = 7;
 
 const WINDOW_MS = 60_000;

@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import QRCode from "qrcode";
-import { CATEGORY_ICONS, type PocketItem } from "@/app/types";
+import { CATEGORIES, CATEGORY_ICONS, type PocketItem } from "@/app/types";
 import { useEscapeKey } from "@/app/hooks/useEscapeKey";
 
 interface ShareModalProps {
@@ -26,6 +26,13 @@ export default function ShareModal({ items, onClose }: ShareModalProps) {
     () => items.filter((item) => selectedIds.has(item.id)),
     [items, selectedIds]
   );
+
+  const groupedItems = useMemo(() => {
+    return CATEGORIES.map((category) => ({
+      category,
+      items: items.filter((item) => item.category === category),
+    })).filter((group) => group.items.length > 0);
+  }, [items]);
 
   const toggleItem = (id: string) => {
     setSelectedIds((prev) => {
@@ -137,26 +144,35 @@ export default function ShareModal({ items, onClose }: ShareModalProps) {
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto space-y-1.5 -mx-1 px-1">
+            <div className="flex-1 overflow-y-auto space-y-3 -mx-1 px-1">
               {items.length === 0 ? (
                 <p className="text-sm text-slate-400 dark:text-slate-500 italic py-4 text-center">Your library is empty.</p>
               ) : (
-                items.map((item) => (
-                  <label
-                    key={item.id}
-                    className="flex items-center space-x-3 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer transition"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={selectedIds.has(item.id)}
-                      onChange={() => toggleItem(item.id)}
-                      className="w-4 h-4 accent-indigo-600 shrink-0"
-                    />
-                    <span className="text-lg shrink-0">{CATEGORY_ICONS[item.category]}</span>
-                    <span className="text-sm text-slate-700 dark:text-slate-300 truncate">
-                      {item.title || item.content}
-                    </span>
-                  </label>
+                groupedItems.map(({ category, items: categoryItems }) => (
+                  <div key={category}>
+                    <p className="text-[11px] font-bold tracking-wider text-slate-400 dark:text-slate-500 uppercase mb-1.5 px-1 flex items-center gap-1.5">
+                      <span>{CATEGORY_ICONS[category]}</span>
+                      <span>{category}</span>
+                    </p>
+                    <div className="space-y-1.5">
+                      {categoryItems.map((item) => (
+                        <label
+                          key={item.id}
+                          className="flex items-center space-x-3 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer transition"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={selectedIds.has(item.id)}
+                            onChange={() => toggleItem(item.id)}
+                            className="w-4 h-4 accent-indigo-600 shrink-0"
+                          />
+                          <span className="text-sm text-slate-700 dark:text-slate-300 truncate">
+                            {item.title || item.content}
+                          </span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
                 ))
               )}
             </div>
