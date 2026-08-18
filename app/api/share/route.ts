@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { isSupabaseAdminConfigured, supabaseAdmin } from "@/app/lib/supabaseAdmin";
-import { CATEGORIES, type PocketItem } from "@/app/types";
+import { CATEGORIES } from "@/app/types";
 
 export const runtime = "nodejs";
 
@@ -26,22 +26,26 @@ function isRateLimited(ip: string): boolean {
   return recent.length > MAX_REQUESTS_PER_WINDOW;
 }
 
-function isValidItem(item: unknown): item is PocketItem {
-  if (!item || typeof item !== "object") return false;
+function validateItem(item: unknown): string | null {
+  if (!item || typeof item !== "object") return "not an object";
   const candidate = item as Record<string, unknown>;
-  return (
-    typeof candidate.id === "string" &&
-    candidate.id.length > 0 &&
-    candidate.id.length <= 100 &&
-    typeof candidate.content === "string" &&
-    candidate.content.length > 0 &&
-    candidate.content.length <= MAX_CONTENT_LENGTH &&
-    typeof candidate.createdAt === "string" &&
-    candidate.createdAt.length <= 100 &&
-    typeof candidate.category === "string" &&
-    (CATEGORIES as readonly string[]).includes(candidate.category) &&
-    (candidate.title === undefined || (typeof candidate.title === "string" && candidate.title.length <= 300))
-  );
+
+  if (typeof candidate.id !== "string" || candidate.id.length === 0) return "missing id";
+  if (candidate.id.length > 100) return "id too long";
+  if (typeof candidate.content !== "string" || candidate.content.length === 0) return "missing content";
+  if (candidate.content.length > MAX_CONTENT_LENGTH) {
+    return `content too long (${candidate.content.length} chars, max ${MAX_CONTENT_LENGTH})`;
+  }
+  if (typeof candidate.createdAt !== "string") return "missing createdAt";
+  if (candidate.createdAt.length > 100) return "createdAt too long";
+  if (typeof candidate.category !== "string") return "missing category";
+  if (!(CATEGORIES as readonly string[]).includes(candidate.category)) {
+    return `unknown category "${candidate.category}"`;
+  }
+  if (candidate.title !== undefined && (typeof candidate.title !== "string" || candidate.title.length > 300)) {
+    return "title invalid or too long";
+  }
+  return null;
 }
 
 export async function POST(request: Request) {
@@ -74,8 +78,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "The selected content is too large." }, { status: 413 });
   }
 
-  if (!items.every(isValidItem)) {
-    return NextResponse.json({ error: "Invalid item format." }, { status: 400 });
+  for (let i = 0; i < items.length; i++) {
+    const reason = validateItem(items[i]);
+    if (reason) {
+      return NextResponse.json({ error: `Item ${i + 1} is invalid: ${reason}.` }, { status: 400 });
+    }
   }
 
   const expiresAt = new Date(Date.now() + SHARE_TTL_DAYS * 24 * 60 * 60 * 1000).toISOString();
