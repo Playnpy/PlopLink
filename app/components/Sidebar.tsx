@@ -28,8 +28,8 @@ export default function Sidebar({
   onOpenShare,
 }: SidebarProps) {
   return (
-    <aside className="w-72 bg-white border-r border-slate-200 flex flex-col hidden md:flex shrink-0 z-10 shadow-sm">
-      <div className="p-6 border-b border-slate-50 flex items-center justify-center">
+    <aside className="w-72 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col hidden md:flex shrink-0 z-10 shadow-sm">
+      <div className="p-6 border-b border-slate-50 dark:border-slate-800 flex items-center justify-center">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/logo.png"
@@ -47,9 +47,9 @@ export default function Sidebar({
         />
       </div>
 
-      <div className="p-4 border-b border-slate-100">
+      <div className="p-4 border-b border-slate-100 dark:border-slate-800">
         <div className="relative">
-          <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 text-sm pointer-events-none">
+          <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 dark:text-slate-500 text-sm pointer-events-none">
             🔍
           </span>
           <input
@@ -57,12 +57,12 @@ export default function Sidebar({
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Search..."
-            className="w-full pl-9 pr-8 py-2 bg-slate-50 text-slate-800 placeholder-slate-400 border-0 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all"
+            className="w-full pl-9 pr-8 py-2 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 border-0 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all"
           />
           {searchQuery && (
             <button
               onClick={() => onSearchChange("")}
-              className="absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-400 hover:text-slate-600 text-xs"
+              className="absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 text-xs"
             >
               ✕
             </button>
@@ -74,7 +74,7 @@ export default function Sidebar({
         <button
           type="button"
           onClick={onOpenShare}
-          className="prevent-autopaste w-full flex items-center justify-center space-x-2 px-3 py-2.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl text-sm font-semibold transition active:scale-95"
+          className="prevent-autopaste w-full flex items-center justify-center space-x-2 px-3 py-2.5 bg-indigo-50 dark:bg-indigo-950/50 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 rounded-xl text-sm font-semibold transition active:scale-95"
         >
           <span>📤</span>
           <span>Send to my phone</span>
@@ -82,7 +82,7 @@ export default function Sidebar({
       </div>
 
       <div className="p-4 flex-1 overflow-y-auto custom-scrollbar">
-        <h3 className="text-[11px] font-bold tracking-wider text-slate-400 uppercase mb-3 px-2">My Drawers</h3>
+        <h3 className="text-[11px] font-bold tracking-wider text-slate-400 dark:text-slate-500 uppercase mb-3 px-2">My Drawers</h3>
 
         <nav className="space-y-1.5">
           {CATEGORIES.map((cat) => {
@@ -97,23 +97,23 @@ export default function Sidebar({
                     e.stopPropagation();
                     onToggleCategory(cat);
                   }}
-                  className="w-full flex items-center justify-between p-2.5 hover:bg-slate-50 transition text-left rounded-lg group"
+                  className="w-full flex items-center justify-between p-2.5 hover:bg-slate-50 dark:hover:bg-slate-800 transition text-left rounded-lg group"
                 >
                   <div className="flex items-center space-x-3">
                     <span className="text-lg opacity-80 group-hover:opacity-100 transition-opacity">
                       {CATEGORY_ICONS[cat]}
                     </span>
-                    <span className="text-sm font-semibold text-slate-700 group-hover:text-indigo-600 transition-colors">
+                    <span className="text-sm font-semibold text-slate-700 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
                       {cat}
                     </span>
                   </div>
                   <div className="flex items-center space-x-2">
                     {filteredItems.length > 0 && (
-                      <span className="text-[10px] bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded-full font-bold">
+                      <span className="text-[10px] bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-300 px-2 py-0.5 rounded-full font-bold">
                         {filteredItems.length}
                       </span>
                     )}
-                    <span className="text-xs text-slate-300 group-hover:text-slate-500 transition-colors">
+                    <span className="text-xs text-slate-300 dark:text-slate-600 group-hover:text-slate-500 dark:group-hover:text-slate-400 transition-colors">
                       {isOpen ? "▲" : "▼"}
                     </span>
                   </div>
@@ -122,7 +122,7 @@ export default function Sidebar({
                 {isOpen && (
                   <div className="pl-9 pr-2 py-1 space-y-1.5 max-h-60 overflow-y-auto mb-2">
                     {filteredItems.length === 0 ? (
-                      <p className="text-[11px] text-slate-400 italic py-1">No results</p>
+                      <p className="text-[11px] text-slate-400 dark:text-slate-500 italic py-1">No results</p>
                     ) : (
                       filteredItems.map((item) => (
                         <SidebarItemRow

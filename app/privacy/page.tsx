@@ -106,7 +106,7 @@ export default function PrivacyPage() {
 
           <section>
             <h2 className="text-base font-bold text-slate-900 mb-2">Contact</h2>
-            <p>For any question about this policy, contact: playnpy@gmail.com</p>
+            <p>For any question about this policy, contact: [your email address]</p>
           </section>
         </div>
       </div>

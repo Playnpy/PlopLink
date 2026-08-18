@@ -26,24 +26,24 @@ export default function QRCodeModal({ content, onClose }: QRCodeModalProps) {
 
   return (
     <div className="fixed inset-0 bg-slate-900/20 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-100 space-y-4">
-        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-          <h3 className="text-base font-bold text-slate-800">QR code</h3>
+      <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-100 dark:border-slate-800 space-y-4">
+        <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+          <h3 className="text-base font-bold text-slate-800 dark:text-slate-100">QR code</h3>
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-700 transition-colors border-none outline-none"
+            className="text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-200 transition-colors border-none outline-none"
           >
             ✕
           </button>
         </div>
 
         <div className="flex flex-col items-center gap-3 py-2 min-h-[200px] justify-center">
-          {error && <p className="text-sm text-red-600 text-center">{error}</p>}
+          {error && <p className="text-sm text-red-600 dark:text-red-400 text-center">{error}</p>}
           {!error && qrDataUrl && (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={qrDataUrl} alt="QR code" className="rounded-xl border border-slate-100" />
+            <img src={qrDataUrl} alt="QR code" className="rounded-xl border border-slate-100 dark:border-slate-700 bg-white p-2" />
           )}
-          {!error && !qrDataUrl && <p className="text-sm text-slate-400">Generating...</p>}
+          {!error && !qrDataUrl && <p className="text-sm text-slate-400 dark:text-slate-500">Generating...</p>}
         </div>
       </div>
     </div>

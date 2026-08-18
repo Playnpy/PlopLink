@@ -15,14 +15,14 @@ export default function ItemContent({ item }: { item: PocketItem }) {
   }
 
   if (item.category === "Email" || item.category === "Phone") {
-    return <span className="text-indigo-600 hover:underline break-all font-medium">{item.content}</span>;
+    return <span className="text-indigo-600 dark:text-indigo-400 hover:underline break-all font-medium">{item.content}</span>;
   }
 
   if (item.category === "YouTube" && item.title) {
     return (
       <div className="space-y-1">
-        <p className="font-semibold text-slate-800 text-sm sm:text-base line-clamp-2">{item.title}</p>
-        <span className="text-xs text-indigo-500 hover:underline break-all truncate block">{item.content}</span>
+        <p className="font-semibold text-slate-800 dark:text-slate-100 text-sm sm:text-base line-clamp-2">{item.title}</p>
+        <span className="text-xs text-indigo-500 dark:text-indigo-400 hover:underline break-all truncate block">{item.content}</span>
       </div>
     );
   }
@@ -30,11 +30,11 @@ export default function ItemContent({ item }: { item: PocketItem }) {
   if (item.category === "Web Link" || item.category === "Google Maps") {
     return (
       <div className="space-y-0.5">
-        {item.title && <p className="font-semibold text-slate-800 text-sm">{item.title}</p>}
-        <span className="text-indigo-600 hover:underline break-all truncate block text-sm">{item.content}</span>
+        {item.title && <p className="font-semibold text-slate-800 dark:text-slate-100 text-sm">{item.title}</p>}
+        <span className="text-indigo-600 dark:text-indigo-400 hover:underline break-all truncate block text-sm">{item.content}</span>
       </div>
     );
   }
 
-  return <p className="whitespace-pre-wrap text-slate-700 line-clamp-3 text-sm leading-relaxed">{item.content}</p>;
+  return <p className="whitespace-pre-wrap text-slate-700 dark:text-slate-300 line-clamp-3 text-sm leading-relaxed">{item.content}</p>;
 }

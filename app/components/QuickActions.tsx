@@ -39,7 +39,7 @@ export default function QuickActions({ item }: { item: PocketItem }) {
           target={action.href.startsWith("http") ? "_blank" : undefined}
           rel={action.href.startsWith("http") ? "noreferrer" : undefined}
           onClick={(e) => e.stopPropagation()}
-          className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-1 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-600 transition"
+          className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-1 rounded-lg bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition"
         >
           <span>{action.icon}</span>
           <span>{action.label}</span>

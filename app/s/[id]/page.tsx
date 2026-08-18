@@ -77,23 +77,23 @@ export default function SharePage({ params }: SharePageProps) {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA] text-slate-900 flex flex-col items-center p-6 sm:p-10">
+    <div className="min-h-screen bg-[#F8F9FA] dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col items-center p-6 sm:p-10">
       <div className="w-full max-w-2xl space-y-8">
         <div className="text-center pt-4">
-          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">
-            Plop<span className="text-indigo-600">Link</span>
+          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-slate-50">
+            Plop<span className="text-indigo-600 dark:text-indigo-400">Link</span>
           </h1>
-          <p className="mt-2 text-slate-500 font-medium">Content shared from your library.</p>
+          <p className="mt-2 text-slate-500 dark:text-slate-400 font-medium">Content shared from your library.</p>
         </div>
 
         {error && (
-          <div className="bg-white rounded-2xl border border-slate-100 border-dashed p-10 text-center text-slate-500">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 border-dashed p-10 text-center text-slate-500 dark:text-slate-400">
             {error}
           </div>
         )}
 
         {!error && items === null && (
-          <div className="bg-white rounded-2xl border border-slate-100 border-dashed p-10 text-center text-slate-400">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 border-dashed p-10 text-center text-slate-400 dark:text-slate-500">
             Loading...
           </div>
         )}
@@ -104,7 +104,7 @@ export default function SharePage({ params }: SharePageProps) {
               <div
                 key={item.id}
                 onClick={() => handleItemClick(item)}
-                className="cursor-pointer bg-white p-5 rounded-2xl border border-slate-200/75 shadow-sm hover:shadow-md hover:border-indigo-200 transition-all space-y-3"
+                className="cursor-pointer bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200/75 dark:border-slate-800 shadow-sm dark:shadow-none hover:shadow-md dark:hover:border-indigo-800 hover:border-indigo-200 transition-all space-y-3"
                 title={item.category === "Image" ? "Tap to download" : "Tap to copy"}
               >
                 <div className="flex items-center justify-between">
@@ -115,7 +115,7 @@ export default function SharePage({ params }: SharePageProps) {
                     <span>{item.category}</span>
                   </span>
                   {copiedId === item.id && (
-                    <span className="text-xs font-semibold text-indigo-600">
+                    <span className="text-xs font-semibold text-indigo-600 dark:text-indigo-400">
                       {item.category === "Image" ? "Downloaded!" : "Copied!"}
                     </span>
                   )}
@@ -124,7 +124,7 @@ export default function SharePage({ params }: SharePageProps) {
                   <ItemContent item={item} />
                 </div>
                 {item.category === "Image" && (
-                  <p className="text-[11px] text-slate-400 font-medium">📥 Tap the image to download it</p>
+                  <p className="text-[11px] text-slate-400 dark:text-slate-500 font-medium">📥 Tap the image to download it</p>
                 )}
               </div>
             ))}

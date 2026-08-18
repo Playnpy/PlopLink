@@ -14,10 +14,10 @@ export default function SidebarItemRow({ item, onCopy, onEditTitle, onDelete, on
   return (
     <div
       onClick={(e) => onCopy(e, item)}
-      className="prevent-autopaste cursor-pointer group/item relative py-1.5 px-2 hover:bg-white rounded-lg border border-transparent hover:border-slate-100 hover:shadow-sm transition"
+      className="prevent-autopaste cursor-pointer group/item relative py-1.5 px-2 hover:bg-white dark:hover:bg-slate-800 rounded-lg border border-transparent hover:border-slate-100 dark:hover:border-slate-700 hover:shadow-sm transition"
       title="Click to copy"
     >
-      <div className="flex justify-between items-center mb-1 text-[9px] text-slate-400 font-medium">
+      <div className="flex justify-between items-center mb-1 text-[9px] text-slate-400 dark:text-slate-500 font-medium">
         <span>{item.createdAt}</span>
 
         <div className="flex items-center space-x-1">
@@ -59,7 +59,7 @@ export default function SidebarItemRow({ item, onCopy, onEditTitle, onDelete, on
         </div>
       </div>
 
-      <div className="text-xs text-slate-600 line-clamp-1 pointer-events-none">
+      <div className="text-xs text-slate-600 dark:text-slate-300 line-clamp-1 pointer-events-none">
         <ItemContent item={item} />
       </div>
     </div>

@@ -13,6 +13,8 @@ import ItemCard from "@/app/components/ItemCard";
 import ExtensionPromoBanner from "@/app/components/ExtensionPromoBanner";
 import QRCodeModal from "@/app/components/QRCodeModal";
 import TextToolsModal from "@/app/components/TextToolsModal";
+import ThemeToggle from "@/app/components/ThemeToggle";
+import ToolboxModal from "@/app/components/ToolboxModal";
 
 export default function Home() {
   const [inputValue, setInputValue] = useState("");
@@ -50,6 +52,30 @@ export default function Home() {
       setInputValue(file.name);
     };
     reader.readAsDataURL(file);
+  };
+
+  // 📥 Handles a file dropped onto the composer: images are attached like a
+  // paste, plain-text-like files are read and prefilled into the input.
+  const handleDroppedFile = (file: File) => {
+    if (file.type.startsWith("image/")) {
+      handleImageFile(file);
+      return;
+    }
+
+    const isTextLike = file.type.startsWith("text/") || /\.(txt|md|csv|json|log|yml|yaml)$/i.test(file.name);
+    if (isTextLike) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const text = String(reader.result || "");
+        setInputValue(text);
+        setSelectedCategory(autoDetectCategory(text));
+      };
+      reader.readAsText(file);
+      return;
+    }
+
+    setToastMessage("Unsupported file type");
+    setTimeout(() => setToastMessage(null), 2500);
   };
 
   // 🧩 Prefill from the Chrome extension (link like /?add=...)
@@ -180,7 +206,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA] text-slate-900 flex font-sans relative">
+    <div className="min-h-screen bg-[#F8F9FA] dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex font-sans relative">
       <Sidebar
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
@@ -196,15 +222,18 @@ export default function Home() {
 
       <main className="flex-1 flex flex-col items-center p-6 sm:p-10 overflow-y-auto">
         <div className="w-full max-w-4xl space-y-10">
-          <div className="text-center pt-4">
-            <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight flex items-center justify-center text-slate-900 drop-shadow-sm">
+          <div className="text-center pt-4 relative">
+            <div className="absolute right-0 top-4">
+              <ThemeToggle />
+            </div>
+            <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight flex items-center justify-center text-slate-900 dark:text-slate-50 drop-shadow-sm">
               Plop
-              <span className="text-indigo-600 relative">
+              <span className="text-indigo-600 dark:text-indigo-400 relative">
                 Link
                 <span className="absolute -right-3 bottom-2 md:bottom-3 w-2.5 h-2.5 md:w-3 md:h-3 bg-orange-500 rounded-full shadow-sm"></span>
               </span>
             </h1>
-            <p className="mt-4 text-lg text-slate-500 font-medium">Your smart pocket dump for capturing the web.</p>
+            <p className="mt-4 text-lg text-slate-500 dark:text-slate-400 font-medium">Your smart pocket dump for capturing the web.</p>
           </div>
 
           <ExtensionPromoBanner />
@@ -221,22 +250,23 @@ export default function Home() {
             selectedCategory={selectedCategory}
             onOpenCategoryModal={() => setIsCategoryModalOpen(true)}
             onSubmit={handleSave}
+            onFileDrop={handleDroppedFile}
             textareaRef={textareaRef}
           />
 
           <div className="pt-4">
-            <h2 className="text-xl font-extrabold text-slate-800 mb-6 px-1 flex items-center space-x-2">
+            <h2 className="text-xl font-extrabold text-slate-800 dark:text-slate-100 mb-6 px-1 flex items-center space-x-2">
               <span>{searchQuery ? "Search results" : "Recent feed"}</span>
-              <span className="text-sm font-medium text-slate-400 bg-slate-200/50 px-2.5 py-0.5 rounded-full">
+              <span className="text-sm font-medium text-slate-400 dark:text-slate-500 bg-slate-200/50 dark:bg-slate-800 px-2.5 py-0.5 rounded-full">
                 {displayedItems.length}
               </span>
             </h2>
 
             {displayedItems.length === 0 ? (
-              <div className="bg-white rounded-2xl border border-slate-100 border-dashed p-12 flex flex-col items-center justify-center text-center">
+              <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 border-dashed p-12 flex flex-col items-center justify-center text-center">
                 <span className="text-4xl mb-4 opacity-50">🔍</span>
-                <p className="text-slate-500 font-medium">No drawer contains this item.</p>
-                <p className="text-sm text-slate-400 mt-1">Try a different keyword or clear the search.</p>
+                <p className="text-slate-500 dark:text-slate-400 font-medium">No drawer contains this item.</p>
+                <p className="text-sm text-slate-400 dark:text-slate-500 mt-1">Try a different keyword or clear the search.</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -276,6 +306,8 @@ export default function Home() {
       {toolsModalItem && <TextToolsModal content={toolsModalItem.content} onClose={() => setToolsModalItem(null)} />}
 
       {toastMessage && <Toast message={toastMessage} />}
+
+      <ToolboxModal />
     </div>
   );
 }

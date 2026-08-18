@@ -45,40 +45,40 @@ export default function TextToolsModal({ content, onClose }: TextToolsModalProps
 
   return (
     <div className="fixed inset-0 bg-slate-900/20 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100 space-y-4 max-h-[85vh] flex flex-col">
-        <div className="flex items-center justify-between border-b border-slate-100 pb-3 shrink-0">
-          <h3 className="text-base font-bold text-slate-800">Text tools</h3>
+      <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100 dark:border-slate-800 space-y-4 max-h-[85vh] flex flex-col">
+        <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3 shrink-0">
+          <h3 className="text-base font-bold text-slate-800 dark:text-slate-100">Text tools</h3>
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-700 transition-colors border-none outline-none"
+            className="text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-200 transition-colors border-none outline-none"
           >
             ✕
           </button>
         </div>
 
-        <p className="text-xs text-slate-500 shrink-0">
+        <p className="text-xs text-slate-500 dark:text-slate-400 shrink-0">
           {stats.characters} characters · {stats.words} words · {stats.lines} line{stats.lines > 1 ? "s" : ""}
         </p>
 
         <div className="flex-1 overflow-y-auto space-y-2 -mx-1 px-1">
           {rows.map((row) =>
             row.value === null ? (
-              <div key={row.key} className="p-2.5 rounded-xl border border-slate-100 bg-slate-50">
-                <p className="text-xs font-semibold text-slate-400">{row.label}</p>
-                <p className="text-xs text-slate-400 italic mt-0.5">Not valid input for this format</p>
+              <div key={row.key} className="p-2.5 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
+                <p className="text-xs font-semibold text-slate-400 dark:text-slate-500">{row.label}</p>
+                <p className="text-xs text-slate-400 dark:text-slate-500 italic mt-0.5">Not valid input for this format</p>
               </div>
             ) : (
-              <div key={row.key} className="p-2.5 rounded-xl border border-slate-100 hover:border-slate-200 transition">
+              <div key={row.key} className="p-2.5 rounded-xl border border-slate-100 dark:border-slate-800 hover:border-slate-200 dark:hover:border-slate-700 transition">
                 <div className="flex items-center justify-between mb-1">
-                  <p className="text-xs font-semibold text-slate-500">{row.label}</p>
+                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">{row.label}</p>
                   <button
                     onClick={() => handleCopy(row.key, row.value as string)}
-                    className="text-[11px] font-semibold text-indigo-600 hover:text-indigo-700 border-none outline-none"
+                    className="text-[11px] font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 border-none outline-none"
                   >
                     {copiedKey === row.key ? "Copied!" : "Copy"}
                   </button>
                 </div>
-                <p className="text-sm text-slate-700 break-all line-clamp-2">{row.value || "(empty)"}</p>
+                <p className="text-sm text-slate-700 dark:text-slate-300 break-all line-clamp-2">{row.value || "(empty)"}</p>
               </div>
             )
           )}
