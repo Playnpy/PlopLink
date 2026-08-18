@@ -50,6 +50,7 @@ interface Tool {
   id: ToolId;
   icon: string;
   title: string;
+  description: string;
   component: ComponentType;
 }
 
@@ -66,13 +67,13 @@ const CATEGORIES: ToolCategory[] = [
     icon: "📝",
     title: "Text",
     tools: [
-      { id: "diff", icon: "🔍", title: "Text diff", component: TextDiffTool },
-      { id: "json", icon: "{ }", title: "JSON formatter", component: JsonFormatterTool },
-      { id: "clean", icon: "🧹", title: "Text cleaner", component: TextCleanerTool },
-      { id: "dedupe", icon: "📋", title: "List dedupe & sort", component: ListDedupeTool },
-      { id: "case", icon: "Aa", title: "Case converter", component: CaseConverterTool },
-      { id: "slug", icon: "🔗", title: "Slug generator", component: SlugGeneratorTool },
-      { id: "regex", icon: "🎯", title: "Regex tester", component: RegexTesterTool },
+      { id: "diff", icon: "🔍", title: "Text diff", description: "Compare two texts and see what changed", component: TextDiffTool },
+      { id: "json", icon: "{ }", title: "JSON formatter", description: "Pretty-print and validate JSON", component: JsonFormatterTool },
+      { id: "clean", icon: "🧹", title: "Text cleaner", description: "Strip extra spaces and blank lines", component: TextCleanerTool },
+      { id: "dedupe", icon: "📋", title: "List dedupe & sort", description: "Remove duplicates and sort a list", component: ListDedupeTool },
+      { id: "case", icon: "Aa", title: "Case converter", description: "Convert between camelCase, snake_case, etc.", component: CaseConverterTool },
+      { id: "slug", icon: "🔗", title: "Slug generator", description: "Turn a title into a clean URL slug", component: SlugGeneratorTool },
+      { id: "regex", icon: "🎯", title: "Regex tester", description: "Test a pattern against text, live", component: RegexTesterTool },
     ],
   },
   {
@@ -80,11 +81,11 @@ const CATEGORIES: ToolCategory[] = [
     icon: "💻",
     title: "Developer",
     tools: [
-      { id: "base", icon: "01", title: "Number base converter", component: NumberBaseTool },
-      { id: "timestamp", icon: "🕒", title: "Timestamp converter", component: TimestampTool },
-      { id: "hash", icon: "#️⃣", title: "Hash generator", component: HashGeneratorTool },
-      { id: "csv", icon: "📊", title: "CSV ↔ JSON", component: CsvJsonTool },
-      { id: "markdown", icon: "Ⓜ️", title: "Markdown preview", component: MarkdownPreviewTool },
+      { id: "base", icon: "01", title: "Number base converter", description: "Convert between binary, octal, decimal, hex", component: NumberBaseTool },
+      { id: "timestamp", icon: "🕒", title: "Timestamp converter", description: "Convert Unix timestamps to readable dates", component: TimestampTool },
+      { id: "hash", icon: "#️⃣", title: "Hash generator", description: "Generate SHA-1, SHA-256, SHA-512 hashes", component: HashGeneratorTool },
+      { id: "csv", icon: "📊", title: "CSV ↔ JSON", description: "Convert between CSV and JSON", component: CsvJsonTool },
+      { id: "markdown", icon: "Ⓜ️", title: "Markdown preview", description: "Live-render Markdown as HTML", component: MarkdownPreviewTool },
     ],
   },
   {
@@ -92,10 +93,10 @@ const CATEGORIES: ToolCategory[] = [
     icon: "✨",
     title: "Generate",
     tools: [
-      { id: "uuid", icon: "🆔", title: "UUID generator", component: UuidGeneratorTool },
-      { id: "password", icon: "🔑", title: "Password generator", component: PasswordGeneratorTool },
-      { id: "lorem", icon: "📄", title: "Lorem Ipsum generator", component: LoremIpsumTool },
-      { id: "picker", icon: "🎲", title: "Random picker", component: RandomPickerTool },
+      { id: "uuid", icon: "🆔", title: "UUID generator", description: "Generate random UUID v4 values", component: UuidGeneratorTool },
+      { id: "password", icon: "🔑", title: "Password generator", description: "Create strong random passwords", component: PasswordGeneratorTool },
+      { id: "lorem", icon: "📄", title: "Lorem Ipsum generator", description: "Generate placeholder text", component: LoremIpsumTool },
+      { id: "picker", icon: "🎲", title: "Random picker", description: "Randomly pick one item from a list", component: RandomPickerTool },
     ],
   },
   {
@@ -103,8 +104,8 @@ const CATEGORIES: ToolCategory[] = [
     icon: "🎨",
     title: "Colors",
     tools: [
-      { id: "color", icon: "🌈", title: "Color converter", component: ColorConverterTool },
-      { id: "compress", icon: "🖼️", title: "Image compressor", component: ImageCompressorTool },
+      { id: "color", icon: "🌈", title: "Color converter", description: "Convert between HEX, RGB, and HSL", component: ColorConverterTool },
+      { id: "compress", icon: "🖼️", title: "Image compressor", description: "Shrink an image's file size", component: ImageCompressorTool },
     ],
   },
   {
@@ -112,9 +113,9 @@ const CATEGORIES: ToolCategory[] = [
     icon: "🧭",
     title: "Practical",
     tools: [
-      { id: "units", icon: "📐", title: "Unit converter", component: UnitConverterTool },
-      { id: "speech", icon: "🔊", title: "Text to speech", component: TextToSpeechTool },
-      { id: "timer", icon: "⏱️", title: "Quick timer", component: QuickTimerTool },
+      { id: "units", icon: "📐", title: "Unit converter", description: "Convert length, weight, and temperature", component: UnitConverterTool },
+      { id: "speech", icon: "🔊", title: "Text to speech", description: "Read text aloud using your browser", component: TextToSpeechTool },
+      { id: "timer", icon: "⏱️", title: "Quick timer", description: "A simple countdown timer with a beep", component: QuickTimerTool },
     ],
   },
 ];
@@ -125,11 +126,13 @@ export default function ToolboxModal() {
   const [isPaletteOpen, setIsPaletteOpen] = useState(false);
   const [openCategory, setOpenCategory] = useState<string | null>(null);
   const [activeTool, setActiveTool] = useState<ToolId | null>(null);
+  const [isCatalogOpen, setIsCatalogOpen] = useState(false);
 
   const openTool = (id: ToolId) => {
     setActiveTool(id);
     setIsPaletteOpen(false);
     setOpenCategory(null);
+    setIsCatalogOpen(false);
   };
 
   const closeAll = () => {
@@ -194,12 +197,63 @@ export default function ToolboxModal() {
         <button
           type="button"
           onClick={() => setIsPaletteOpen((prev) => !prev)}
-          title="Toolbox"
+          onDoubleClick={() => {
+            setIsPaletteOpen(false);
+            setOpenCategory(null);
+            setIsCatalogOpen(true);
+          }}
+          title="Toolbox (double-click for the full list)"
           className="prevent-autopaste w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-indigo-700 shadow-lg shadow-indigo-400/40 dark:shadow-indigo-900/60 flex items-center justify-center text-xl hover:scale-105 active:scale-95 transition-transform border-none outline-none"
         >
           🧰
         </button>
       </div>
+
+      {isCatalogOpen && (
+        <div className="fixed inset-0 bg-slate-900/30 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-3xl w-full p-6 shadow-2xl border border-slate-100 dark:border-slate-800 space-y-5 max-h-[85vh] flex flex-col">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3 shrink-0">
+              <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">🧰 All utilities</h3>
+              <button
+                onClick={() => setIsCatalogOpen(false)}
+                className="text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-200 transition-colors border-none outline-none"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto space-y-6 pr-1">
+              {CATEGORIES.map((category) => (
+                <div key={category.id}>
+                  <div className="flex items-center gap-2 mb-2.5">
+                    <span className="text-lg">{category.icon}</span>
+                    <h4 className="text-sm font-bold text-slate-700 dark:text-slate-200">{category.title}</h4>
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    {category.tools.map((tool) => (
+                      <div key={tool.id} className="group/card relative">
+                        <span className="pointer-events-none absolute left-1/2 -translate-x-1/2 bottom-full mb-1.5 w-max max-w-[200px] whitespace-normal text-center bg-slate-900 dark:bg-slate-700 text-white text-[11px] px-2.5 py-1.5 rounded-lg opacity-0 group-hover/card:opacity-100 transition-opacity shadow-lg z-10">
+                          {tool.description}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => openTool(tool.id)}
+                          className="w-full flex items-center gap-2 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800 hover:border-indigo-200 dark:hover:border-indigo-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition text-left border-solid outline-none"
+                        >
+                          <span className="text-base shrink-0">{tool.icon}</span>
+                          <span className="text-xs font-semibold text-slate-700 dark:text-slate-200 truncate">
+                            {tool.title}
+                          </span>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {activeTool && ActiveComponent && (
         <div className="fixed inset-0 bg-slate-900/20 backdrop-blur-sm flex items-center justify-center p-4 z-50">
