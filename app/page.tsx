@@ -11,6 +11,8 @@ import ShareModal from "@/app/components/ShareModal";
 import Toast from "@/app/components/Toast";
 import ItemCard from "@/app/components/ItemCard";
 import ExtensionPromoBanner from "@/app/components/ExtensionPromoBanner";
+import QRCodeModal from "@/app/components/QRCodeModal";
+import TextToolsModal from "@/app/components/TextToolsModal";
 
 export default function Home() {
   const [inputValue, setInputValue] = useState("");
@@ -22,18 +24,22 @@ export default function Home() {
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [openSidebarCategories, setOpenSidebarCategories] = useState<Record<string, boolean>>({});
   const [items, setItems] = useLocalItems();
+  const [qrModalItem, setQrModalItem] = useState<PocketItem | null>(null);
+  const [toolsModalItem, setToolsModalItem] = useState<PocketItem | null>(null);
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const displayedItems = items.filter((item) => {
-    const query = searchQuery.toLowerCase().trim();
-    if (!query) return true;
-    return (
-      item.content.toLowerCase().includes(query) ||
-      (item.title?.toLowerCase().includes(query) ?? false) ||
-      item.category.toLowerCase().includes(query)
-    );
-  });
+  const displayedItems = items
+    .filter((item) => {
+      const query = searchQuery.toLowerCase().trim();
+      if (!query) return true;
+      return (
+        item.content.toLowerCase().includes(query) ||
+        (item.title?.toLowerCase().includes(query) ?? false) ||
+        item.category.toLowerCase().includes(query)
+      );
+    })
+    .sort((a, b) => (a.pinned === b.pinned ? 0 : a.pinned ? -1 : 1));
 
   const handleImageFile = (file: File) => {
     if (!file.type.startsWith("image/")) return;
@@ -169,6 +175,10 @@ export default function Home() {
     setOpenSidebarCategories((prev) => ({ ...prev, [cat]: !prev[cat] }));
   };
 
+  const handleTogglePin = (itemId: string) => {
+    setItems((prev) => prev.map((item) => (item.id === itemId ? { ...item, pinned: !item.pinned } : item)));
+  };
+
   return (
     <div className="min-h-screen bg-[#F8F9FA] text-slate-900 flex font-sans relative">
       <Sidebar
@@ -180,6 +190,7 @@ export default function Home() {
         onCopy={handleCopyContent}
         onEditTitle={handleEditTitle}
         onDelete={handleDelete}
+        onTogglePin={handleTogglePin}
         onOpenShare={() => setIsShareModalOpen(true)}
       />
 
@@ -230,7 +241,15 @@ export default function Home() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 {displayedItems.map((item) => (
-                  <ItemCard key={item.id} item={item} onCopy={handleCopyContent} onDelete={handleDelete} />
+                  <ItemCard
+                    key={item.id}
+                    item={item}
+                    onCopy={handleCopyContent}
+                    onDelete={handleDelete}
+                    onTogglePin={handleTogglePin}
+                    onOpenQR={setQrModalItem}
+                    onOpenTools={setToolsModalItem}
+                  />
                 ))}
               </div>
             )}
@@ -251,6 +270,10 @@ export default function Home() {
       )}
 
       {isShareModalOpen && <ShareModal items={items} onClose={() => setIsShareModalOpen(false)} />}
+
+      {qrModalItem && <QRCodeModal content={qrModalItem.content} onClose={() => setQrModalItem(null)} />}
+
+      {toolsModalItem && <TextToolsModal content={toolsModalItem.content} onClose={() => setToolsModalItem(null)} />}
 
       {toastMessage && <Toast message={toastMessage} />}
     </div>
