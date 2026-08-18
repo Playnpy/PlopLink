@@ -222,10 +222,7 @@ export default function Home() {
 
       <main className="flex-1 flex flex-col items-center p-6 sm:p-10 overflow-y-auto">
         <div className="w-full max-w-4xl space-y-10">
-          <div className="text-center pt-4 relative">
-            <div className="absolute right-0 top-4">
-              <ThemeToggle />
-            </div>
+          <div className="text-center pt-4">
             <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight flex items-center justify-center text-slate-900 dark:text-slate-50 drop-shadow-sm">
               Plop
               <span className="text-indigo-600 dark:text-indigo-400 relative">
@@ -307,6 +304,7 @@ export default function Home() {
 
       {toastMessage && <Toast message={toastMessage} />}
 
+      <ThemeToggle />
       <ToolboxModal />
     </div>
   );
