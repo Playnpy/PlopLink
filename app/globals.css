@@ -38,3 +38,19 @@ body {
 .dark .custom-scrollbar::-webkit-scrollbar-thumb {
   background-color: rgba(100, 116, 139, 0.5);
 }
+
+.md-preview h1 { font-size: 1.3em; font-weight: 700; margin: 0.5em 0; }
+.md-preview h2 { font-size: 1.15em; font-weight: 700; margin: 0.5em 0; }
+.md-preview h3 { font-size: 1.05em; font-weight: 600; margin: 0.5em 0; }
+.md-preview p { margin: 0.5em 0; line-height: 1.5; }
+.md-preview ul, .md-preview ol { margin: 0.5em 0; padding-left: 1.4em; }
+.md-preview li { margin: 0.2em 0; }
+.md-preview a { color: #4f46e5; text-decoration: underline; }
+.dark .md-preview a { color: #818cf8; }
+.md-preview code { background: rgba(148, 163, 184, 0.15); padding: 0.15em 0.35em; border-radius: 4px; font-size: 0.9em; }
+.md-preview pre { background: rgba(148, 163, 184, 0.15); padding: 0.6em; border-radius: 8px; overflow-x: auto; }
+.md-preview pre code { background: none; padding: 0; }
+.md-preview blockquote { border-left: 3px solid #cbd5e1; padding-left: 0.8em; margin: 0.5em 0; color: inherit; opacity: 0.85; }
+.dark .md-preview blockquote { border-left-color: #475569; }
+.md-preview strong { font-weight: 700; }
+.md-preview img { max-width: 100%; }

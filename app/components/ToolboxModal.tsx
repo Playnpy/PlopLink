@@ -8,8 +8,43 @@ import ListDedupeTool from "@/app/components/tools/ListDedupeTool";
 import CaseConverterTool from "@/app/components/tools/CaseConverterTool";
 import SlugGeneratorTool from "@/app/components/tools/SlugGeneratorTool";
 import RegexTesterTool from "@/app/components/tools/RegexTesterTool";
+import NumberBaseTool from "@/app/components/tools/NumberBaseTool";
+import TimestampTool from "@/app/components/tools/TimestampTool";
+import HashGeneratorTool from "@/app/components/tools/HashGeneratorTool";
+import CsvJsonTool from "@/app/components/tools/CsvJsonTool";
+import MarkdownPreviewTool from "@/app/components/tools/MarkdownPreviewTool";
+import UuidGeneratorTool from "@/app/components/tools/UuidGeneratorTool";
+import PasswordGeneratorTool from "@/app/components/tools/PasswordGeneratorTool";
+import LoremIpsumTool from "@/app/components/tools/LoremIpsumTool";
+import RandomPickerTool from "@/app/components/tools/RandomPickerTool";
+import ColorConverterTool from "@/app/components/tools/ColorConverterTool";
+import ImageCompressorTool from "@/app/components/tools/ImageCompressorTool";
+import UnitConverterTool from "@/app/components/tools/UnitConverterTool";
+import TextToSpeechTool from "@/app/components/tools/TextToSpeechTool";
+import QuickTimerTool from "@/app/components/tools/QuickTimerTool";
 
-type ToolId = "diff" | "json" | "clean" | "dedupe" | "case" | "slug" | "regex";
+type ToolId =
+  | "diff"
+  | "json"
+  | "clean"
+  | "dedupe"
+  | "case"
+  | "slug"
+  | "regex"
+  | "base"
+  | "timestamp"
+  | "hash"
+  | "csv"
+  | "markdown"
+  | "uuid"
+  | "password"
+  | "lorem"
+  | "picker"
+  | "color"
+  | "compress"
+  | "units"
+  | "speech"
+  | "timer";
 
 interface Tool {
   id: ToolId;
@@ -38,6 +73,48 @@ const CATEGORIES: ToolCategory[] = [
       { id: "case", icon: "Aa", title: "Case converter", component: CaseConverterTool },
       { id: "slug", icon: "🔗", title: "Slug generator", component: SlugGeneratorTool },
       { id: "regex", icon: "🎯", title: "Regex tester", component: RegexTesterTool },
+    ],
+  },
+  {
+    id: "developer",
+    icon: "💻",
+    title: "Developer",
+    tools: [
+      { id: "base", icon: "01", title: "Number base converter", component: NumberBaseTool },
+      { id: "timestamp", icon: "🕒", title: "Timestamp converter", component: TimestampTool },
+      { id: "hash", icon: "#️⃣", title: "Hash generator", component: HashGeneratorTool },
+      { id: "csv", icon: "📊", title: "CSV ↔ JSON", component: CsvJsonTool },
+      { id: "markdown", icon: "Ⓜ️", title: "Markdown preview", component: MarkdownPreviewTool },
+    ],
+  },
+  {
+    id: "generate",
+    icon: "✨",
+    title: "Generate",
+    tools: [
+      { id: "uuid", icon: "🆔", title: "UUID generator", component: UuidGeneratorTool },
+      { id: "password", icon: "🔑", title: "Password generator", component: PasswordGeneratorTool },
+      { id: "lorem", icon: "📄", title: "Lorem Ipsum generator", component: LoremIpsumTool },
+      { id: "picker", icon: "🎲", title: "Random picker", component: RandomPickerTool },
+    ],
+  },
+  {
+    id: "colors",
+    icon: "🎨",
+    title: "Colors",
+    tools: [
+      { id: "color", icon: "🌈", title: "Color converter", component: ColorConverterTool },
+      { id: "compress", icon: "🖼️", title: "Image compressor", component: ImageCompressorTool },
+    ],
+  },
+  {
+    id: "practical",
+    icon: "🧭",
+    title: "Practical",
+    tools: [
+      { id: "units", icon: "📐", title: "Unit converter", component: UnitConverterTool },
+      { id: "speech", icon: "🔊", title: "Text to speech", component: TextToSpeechTool },
+      { id: "timer", icon: "⏱️", title: "Quick timer", component: QuickTimerTool },
     ],
   },
 ];
