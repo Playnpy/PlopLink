@@ -11,6 +11,7 @@ interface SidebarProps {
   onCopy: (e: MouseEvent, item: PocketItem) => void;
   onEditTitle: (id: string, currentTitle?: string) => void;
   onDelete: (id: string) => void;
+  onTogglePin: (id: string) => void;
   onOpenShare: () => void;
 }
 
@@ -23,6 +24,7 @@ export default function Sidebar({
   onCopy,
   onEditTitle,
   onDelete,
+  onTogglePin,
   onOpenShare,
 }: SidebarProps) {
   return (
@@ -129,6 +131,7 @@ export default function Sidebar({
                           onCopy={onCopy}
                           onEditTitle={onEditTitle}
                           onDelete={onDelete}
+                          onTogglePin={onTogglePin}
                         />
                       ))
                     )}

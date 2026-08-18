@@ -7,9 +7,10 @@ interface SidebarItemRowProps {
   onCopy: (e: MouseEvent, item: PocketItem) => void;
   onEditTitle: (id: string, currentTitle?: string) => void;
   onDelete: (id: string) => void;
+  onTogglePin: (id: string) => void;
 }
 
-export default function SidebarItemRow({ item, onCopy, onEditTitle, onDelete }: SidebarItemRowProps) {
+export default function SidebarItemRow({ item, onCopy, onEditTitle, onDelete, onTogglePin }: SidebarItemRowProps) {
   return (
     <div
       onClick={(e) => onCopy(e, item)}
@@ -20,6 +21,19 @@ export default function SidebarItemRow({ item, onCopy, onEditTitle, onDelete }: 
         <span>{item.createdAt}</span>
 
         <div className="flex items-center space-x-1">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onTogglePin(item.id);
+            }}
+            className={`transition ${
+              item.pinned ? "text-indigo-500" : "opacity-0 group-hover/item:opacity-100 text-slate-400 hover:text-indigo-600"
+            }`}
+            title={item.pinned ? "Unpin" : "Pin"}
+          >
+            📌
+          </button>
           <button
             type="button"
             onClick={(e) => {
