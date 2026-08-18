@@ -6,14 +6,7 @@ import LineNumberedTextarea from "@/app/components/LineNumberedTextarea";
 
 type ToolId = "diff";
 
-const TOOLS: { id: ToolId; icon: string; title: string; description: string }[] = [
-  {
-    id: "diff",
-    icon: "🔍",
-    title: "Text diff",
-    description: "Type or paste two texts and see what's shared and what changed, live.",
-  },
-];
+const TOOLS: { id: ToolId; icon: string; title: string }[] = [{ id: "diff", icon: "🔍", title: "Text diff" }];
 
 function TextDiffTool() {
   const [textA, setTextA] = useState("");
@@ -80,76 +73,68 @@ function TextDiffTool() {
 }
 
 export default function ToolboxModal() {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isPaletteOpen, setIsPaletteOpen] = useState(false);
   const [activeTool, setActiveTool] = useState<ToolId | null>(null);
 
-  const closeAndReset = () => {
-    setIsOpen(false);
-    setActiveTool(null);
+  const openTool = (id: ToolId) => {
+    setActiveTool(id);
+    setIsPaletteOpen(false);
   };
+
+  const paletteVisibility = isPaletteOpen
+    ? "opacity-100 scale-100 translate-y-0 pointer-events-auto"
+    : "opacity-0 scale-90 translate-y-2 pointer-events-none";
 
   return (
     <>
-      <button
-        type="button"
-        onClick={() => setIsOpen(true)}
-        title="Toolbox"
-        className="prevent-autopaste fixed right-5 bottom-6 z-40 w-12 h-12 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-lg shadow-slate-300/40 dark:shadow-none flex items-center justify-center text-xl hover:scale-105 hover:border-indigo-300 dark:hover:border-indigo-500 transition-all"
+      <div
+        className="group/toolbox fixed right-5 bottom-6 z-40 flex flex-col items-center gap-3"
+        onMouseEnter={() => setIsPaletteOpen(true)}
+        onMouseLeave={() => setIsPaletteOpen(false)}
       >
-        🧰
-      </button>
+        <div
+          className={`flex flex-col items-center gap-3 transition-all duration-200 ease-out ${paletteVisibility}`}
+        >
+          {TOOLS.map((tool, i) => (
+            <div key={tool.id} className="group/item relative" style={{ transitionDelay: `${i * 40}ms` }}>
+              <span className="pointer-events-none absolute right-full mr-3 top-1/2 -translate-y-1/2 whitespace-nowrap bg-slate-900 dark:bg-slate-700 text-white text-xs font-semibold px-2.5 py-1 rounded-lg opacity-0 group-hover/item:opacity-100 transition-opacity shadow-lg">
+                {tool.title}
+              </span>
+              <button
+                type="button"
+                onClick={() => openTool(tool.id)}
+                className="w-11 h-11 rounded-full bg-white dark:bg-slate-800 shadow-lg shadow-slate-300/40 dark:shadow-black/40 flex items-center justify-center text-lg hover:scale-110 transition-transform border-none outline-none"
+              >
+                {tool.icon}
+              </button>
+            </div>
+          ))}
+        </div>
 
-      {isOpen && (
+        <button
+          type="button"
+          onClick={() => setIsPaletteOpen((prev) => !prev)}
+          title="Toolbox"
+          className="prevent-autopaste w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-indigo-700 shadow-lg shadow-indigo-400/40 dark:shadow-indigo-900/60 flex items-center justify-center text-xl hover:scale-105 active:scale-95 transition-transform border-none outline-none"
+        >
+          🧰
+        </button>
+      </div>
+
+      {activeTool === "diff" && (
         <div className="fixed inset-0 bg-slate-900/20 backdrop-blur-sm flex items-center justify-center p-4 z-50">
           <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-2xl w-full p-6 shadow-2xl border border-slate-100 dark:border-slate-800 space-y-4 max-h-[85vh] flex flex-col">
             <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3 shrink-0">
-              <div className="flex items-center gap-2">
-                {activeTool && (
-                  <button
-                    onClick={() => setActiveTool(null)}
-                    className="text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-200 transition-colors border-none outline-none text-sm"
-                    title="Back"
-                  >
-                    ←
-                  </button>
-                )}
-                <h3 className="text-base font-bold text-slate-800 dark:text-slate-100">
-                  {activeTool ? TOOLS.find((t) => t.id === activeTool)?.title : "Toolbox"}
-                </h3>
-              </div>
+              <h3 className="text-base font-bold text-slate-800 dark:text-slate-100">Text diff</h3>
               <button
-                onClick={closeAndReset}
+                onClick={() => setActiveTool(null)}
                 className="text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-200 transition-colors border-none outline-none"
               >
                 ✕
               </button>
             </div>
-
             <div className="flex-1 overflow-y-auto">
-              {!activeTool && (
-                <div className="space-y-2">
-                  {TOOLS.map((tool) => (
-                    <button
-                      key={tool.id}
-                      type="button"
-                      onClick={() => setActiveTool(tool.id)}
-                      className="w-full flex items-start gap-3 p-3.5 rounded-xl border border-slate-100 dark:border-slate-800 hover:border-indigo-200 dark:hover:border-indigo-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition text-left"
-                    >
-                      <span className="text-xl shrink-0">{tool.icon}</span>
-                      <span>
-                        <span className="block text-sm font-semibold text-slate-800 dark:text-slate-100">
-                          {tool.title}
-                        </span>
-                        <span className="block text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                          {tool.description}
-                        </span>
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              )}
-
-              {activeTool === "diff" && <TextDiffTool />}
+              <TextDiffTool />
             </div>
           </div>
         </div>

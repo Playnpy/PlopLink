@@ -23,9 +23,14 @@ export default function ThemeToggle() {
       type="button"
       onClick={toggleTheme}
       title={isDark ? "Switch to light mode" : "Switch to dark mode"}
-      className="prevent-autopaste fixed top-4 right-4 z-40 w-9 h-9 flex items-center justify-center rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:border-indigo-200 dark:hover:border-indigo-500 transition shadow-sm shrink-0"
+      className="prevent-autopaste fixed top-4 right-4 z-40 w-10 h-10 flex items-center justify-center text-2xl bg-transparent border-none outline-none hover:scale-110 active:scale-95 transition-transform duration-200"
+      style={{
+        filter: isDark
+          ? "drop-shadow(0 0 8px rgba(129,140,248,0.6))"
+          : "drop-shadow(0 0 8px rgba(251,191,36,0.55))",
+      }}
     >
-      {isDark ? "☀️" : "🌙"}
+      {isDark ? "🌙" : "☀️"}
     </button>
   );
 }
