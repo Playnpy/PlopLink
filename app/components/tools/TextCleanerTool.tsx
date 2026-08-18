@@ -1,0 +1,26 @@
+"use client";
+
+import { useMemo, useState } from "react";
+import { cleanText } from "@/app/lib/textTools";
+import CopyableOutput from "@/app/components/CopyableOutput";
+
+export default function TextCleanerTool() {
+  const [input, setInput] = useState("");
+  const result = useMemo(() => cleanText(input), [input]);
+
+  return (
+    <div className="space-y-3">
+      <div>
+        <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1 block">Messy text</label>
+        <textarea
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          rows={6}
+          placeholder="Paste text with extra spaces or blank lines..."
+          className="w-full p-3 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 resize-none"
+        />
+      </div>
+      <CopyableOutput label="Cleaned" value={result} mono={false} />
+    </div>
+  );
+}
