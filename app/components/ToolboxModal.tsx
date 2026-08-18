@@ -46,18 +46,18 @@ const ALL_TOOLS = CATEGORIES.flatMap((c) => c.tools);
 
 export default function ToolboxModal() {
   const [isPaletteOpen, setIsPaletteOpen] = useState(false);
-  const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
+  const [openCategory, setOpenCategory] = useState<string | null>(null);
   const [activeTool, setActiveTool] = useState<ToolId | null>(null);
 
   const openTool = (id: ToolId) => {
     setActiveTool(id);
     setIsPaletteOpen(false);
-    setHoveredCategory(null);
+    setOpenCategory(null);
   };
 
   const closeAll = () => {
     setIsPaletteOpen(false);
-    setHoveredCategory(null);
+    setOpenCategory(null);
   };
 
   const paletteVisibility = isPaletteOpen
@@ -76,15 +76,11 @@ export default function ToolboxModal() {
       >
         <div className={`flex flex-col items-center gap-3 transition-all duration-200 ease-out ${paletteVisibility}`}>
           {CATEGORIES.map((category) => (
-            <div
-              key={category.id}
-              className="relative"
-              onMouseEnter={() => setHoveredCategory(category.id)}
-            >
-              {/* Flyout of tools, opens to the left of the category bubble */}
+            <div key={category.id} className="relative">
+              {/* Flyout of tools, opens to the left of the category bubble on click */}
               <div
                 className={`absolute right-full mr-3 top-1/2 -translate-y-1/2 flex items-center gap-2 transition-all duration-150 ease-out ${
-                  hoveredCategory === category.id
+                  openCategory === category.id
                     ? "opacity-100 translate-x-0 pointer-events-auto"
                     : "opacity-0 translate-x-2 pointer-events-none"
                 }`}
@@ -108,7 +104,7 @@ export default function ToolboxModal() {
               {/* Category bubble */}
               <button
                 type="button"
-                onClick={() => setHoveredCategory((prev) => (prev === category.id ? null : category.id))}
+                onClick={() => setOpenCategory((prev) => (prev === category.id ? null : category.id))}
                 title={category.title}
                 className="w-11 h-11 rounded-full bg-white dark:bg-slate-800 shadow-lg shadow-slate-300/40 dark:shadow-black/40 flex items-center justify-center text-lg hover:scale-110 transition-transform border-none outline-none"
               >
