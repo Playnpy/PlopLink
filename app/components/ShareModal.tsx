@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import QRCode from "qrcode";
 import { CATEGORY_ICONS, type PocketItem } from "@/app/types";
+import { useEscapeKey } from "@/app/hooks/useEscapeKey";
 
 interface ShareModalProps {
   items: PocketItem[];
@@ -10,6 +11,8 @@ interface ShareModalProps {
 }
 
 export default function ShareModal({ items, onClose }: ShareModalProps) {
+  useEscapeKey(onClose);
+
   const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set(items.map((item) => item.id)));
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState<string | null>(null);

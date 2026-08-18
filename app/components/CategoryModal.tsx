@@ -1,4 +1,5 @@
 import { CATEGORIES, CATEGORY_ICONS, type Category } from "@/app/types";
+import { useEscapeKey } from "@/app/hooks/useEscapeKey";
 
 interface CategoryModalProps {
   selectedCategory: Category;
@@ -7,6 +8,8 @@ interface CategoryModalProps {
 }
 
 export default function CategoryModal({ selectedCategory, onSelect, onClose }: CategoryModalProps) {
+  useEscapeKey(onClose);
+
   return (
     <div className="fixed inset-0 bg-slate-900/20 backdrop-blur-sm flex items-center justify-center p-4 z-50">
       <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-100 dark:border-slate-800 space-y-5">

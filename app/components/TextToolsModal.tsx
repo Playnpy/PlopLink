@@ -10,6 +10,7 @@ import {
   toLowercase,
   toUppercase,
 } from "@/app/lib/textTools";
+import { useEscapeKey } from "@/app/hooks/useEscapeKey";
 
 interface TextToolsModalProps {
   content: string;
@@ -17,6 +18,8 @@ interface TextToolsModalProps {
 }
 
 export default function TextToolsModal({ content, onClose }: TextToolsModalProps) {
+  useEscapeKey(onClose);
+
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
   const stats = useMemo(() => countStats(content), [content]);

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import QRCode from "qrcode";
+import { useEscapeKey } from "@/app/hooks/useEscapeKey";
 
 interface QRCodeModalProps {
   content: string;
@@ -11,6 +12,8 @@ interface QRCodeModalProps {
 const MAX_QR_LENGTH = 800;
 
 export default function QRCodeModal({ content, onClose }: QRCodeModalProps) {
+  useEscapeKey(onClose);
+
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 

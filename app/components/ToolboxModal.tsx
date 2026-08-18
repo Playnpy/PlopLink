@@ -143,24 +143,41 @@ export default function ToolboxModal() {
     setShortcuts(loadShortcuts());
   }, []);
 
-  // While recording a shortcut for a specific tool, capture the next keydown
-  // (Escape cancels, Backspace/Delete clears an existing shortcut).
+  // Single keydown handler for the whole toolbox:
+  // 1. While recording a shortcut, capture it (Escape cancels, Backspace/Delete clears).
+  // 2. Otherwise, Escape closes whatever popup is open (tool detail > catalog > speed-dial).
+  // 3. Otherwise, a matching saved shortcut opens its tool from anywhere on the site.
   useEffect(() => {
-    if (!recordingToolId) return;
-
     const handler = (e: KeyboardEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
+      if (recordingToolId) {
+        e.preventDefault();
+        e.stopPropagation();
 
-      if (e.key === "Escape") {
-        setRecordingToolId(null);
-        return;
-      }
+        if (e.key === "Escape") {
+          setRecordingToolId(null);
+          return;
+        }
 
-      if (e.key === "Backspace" || e.key === "Delete") {
+        if (e.key === "Backspace" || e.key === "Delete") {
+          setShortcuts((prev) => {
+            const next = { ...prev };
+            delete next[recordingToolId];
+            saveShortcuts(next);
+            return next;
+          });
+          setRecordingToolId(null);
+          return;
+        }
+
+        const combo = normalizeShortcut(e);
+        if (!combo) return; // bare modifier press — keep waiting
+
         setShortcuts((prev) => {
           const next = { ...prev };
-          delete next[recordingToolId];
+          for (const key of Object.keys(next)) {
+            if (next[key] === combo) delete next[key];
+          }
+          next[recordingToolId] = combo;
           saveShortcuts(next);
           return next;
         });
@@ -168,29 +185,22 @@ export default function ToolboxModal() {
         return;
       }
 
-      const combo = normalizeShortcut(e);
-      if (!combo) return; // bare modifier press — keep waiting
-
-      setShortcuts((prev) => {
-        const next = { ...prev };
-        for (const key of Object.keys(next)) {
-          if (next[key] === combo) delete next[key];
+      if (e.key === "Escape") {
+        if (activeTool) {
+          setActiveTool(null);
+          return;
         }
-        next[recordingToolId] = combo;
-        saveShortcuts(next);
-        return next;
-      });
-      setRecordingToolId(null);
-    };
+        if (isCatalogOpen) {
+          setIsCatalogOpen(false);
+          return;
+        }
+        if (isPaletteOpen || openCategory) {
+          setIsPaletteOpen(false);
+          setOpenCategory(null);
+        }
+        return;
+      }
 
-    window.addEventListener("keydown", handler, true);
-    return () => window.removeEventListener("keydown", handler, true);
-  }, [recordingToolId]);
-
-  // Global listener: opens the matching tool from anywhere on the site.
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (recordingToolId) return;
       const combo = normalizeShortcut(e);
       if (!combo) return;
       const match = Object.entries(shortcuts).find(([, v]) => v === combo);
@@ -199,9 +209,10 @@ export default function ToolboxModal() {
         openTool(match[0] as ToolId);
       }
     };
+
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [shortcuts, recordingToolId]);
+  }, [recordingToolId, activeTool, isCatalogOpen, isPaletteOpen, openCategory, shortcuts]);
 
   const closeAll = () => {
     setIsPaletteOpen(false);
