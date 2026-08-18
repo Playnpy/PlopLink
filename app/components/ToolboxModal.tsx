@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, type ComponentType } from "react";
+import { useEffect, useState, type ComponentType } from "react";
+import { loadShortcuts, normalizeShortcut, saveShortcuts } from "@/app/lib/shortcuts";
 import TextDiffTool from "@/app/components/tools/TextDiffTool";
 import JsonFormatterTool from "@/app/components/tools/JsonFormatterTool";
 import TextCleanerTool from "@/app/components/tools/TextCleanerTool";
@@ -127,6 +128,8 @@ export default function ToolboxModal() {
   const [openCategory, setOpenCategory] = useState<string | null>(null);
   const [activeTool, setActiveTool] = useState<ToolId | null>(null);
   const [isCatalogOpen, setIsCatalogOpen] = useState(false);
+  const [shortcuts, setShortcuts] = useState<Record<string, string>>({});
+  const [recordingToolId, setRecordingToolId] = useState<ToolId | null>(null);
 
   const openTool = (id: ToolId) => {
     setActiveTool(id);
@@ -134,6 +137,71 @@ export default function ToolboxModal() {
     setOpenCategory(null);
     setIsCatalogOpen(false);
   };
+
+  // Load saved shortcuts once on mount.
+  useEffect(() => {
+    setShortcuts(loadShortcuts());
+  }, []);
+
+  // While recording a shortcut for a specific tool, capture the next keydown
+  // (Escape cancels, Backspace/Delete clears an existing shortcut).
+  useEffect(() => {
+    if (!recordingToolId) return;
+
+    const handler = (e: KeyboardEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      if (e.key === "Escape") {
+        setRecordingToolId(null);
+        return;
+      }
+
+      if (e.key === "Backspace" || e.key === "Delete") {
+        setShortcuts((prev) => {
+          const next = { ...prev };
+          delete next[recordingToolId];
+          saveShortcuts(next);
+          return next;
+        });
+        setRecordingToolId(null);
+        return;
+      }
+
+      const combo = normalizeShortcut(e);
+      if (!combo) return; // bare modifier press — keep waiting
+
+      setShortcuts((prev) => {
+        const next = { ...prev };
+        for (const key of Object.keys(next)) {
+          if (next[key] === combo) delete next[key];
+        }
+        next[recordingToolId] = combo;
+        saveShortcuts(next);
+        return next;
+      });
+      setRecordingToolId(null);
+    };
+
+    window.addEventListener("keydown", handler, true);
+    return () => window.removeEventListener("keydown", handler, true);
+  }, [recordingToolId]);
+
+  // Global listener: opens the matching tool from anywhere on the site.
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (recordingToolId) return;
+      const combo = normalizeShortcut(e);
+      if (!combo) return;
+      const match = Object.entries(shortcuts).find(([, v]) => v === combo);
+      if (match) {
+        e.preventDefault();
+        openTool(match[0] as ToolId);
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [shortcuts, recordingToolId]);
 
   const closeAll = () => {
     setIsPaletteOpen(false);
@@ -215,7 +283,10 @@ export default function ToolboxModal() {
             <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3 shrink-0">
               <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">🧰 All utilities</h3>
               <button
-                onClick={() => setIsCatalogOpen(false)}
+                onClick={() => {
+                  setIsCatalogOpen(false);
+                  setRecordingToolId(null);
+                }}
                 className="text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-200 transition-colors border-none outline-none"
               >
                 ✕
@@ -235,16 +306,46 @@ export default function ToolboxModal() {
                         <span className="pointer-events-none absolute left-1/2 -translate-x-1/2 bottom-full mb-1.5 w-max max-w-[200px] whitespace-normal text-center bg-slate-900 dark:bg-slate-700 text-white text-[11px] px-2.5 py-1.5 rounded-lg opacity-0 group-hover/card:opacity-100 transition-opacity shadow-lg z-10">
                           {tool.description}
                         </span>
-                        <button
-                          type="button"
-                          onClick={() => openTool(tool.id)}
-                          className="w-full flex items-center gap-2 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800 hover:border-indigo-200 dark:hover:border-indigo-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition text-left border-solid outline-none"
-                        >
-                          <span className="text-base shrink-0">{tool.icon}</span>
-                          <span className="text-xs font-semibold text-slate-700 dark:text-slate-200 truncate">
-                            {tool.title}
-                          </span>
-                        </button>
+                        <div className="flex items-stretch gap-1">
+                          <button
+                            type="button"
+                            onClick={() => openTool(tool.id)}
+                            className="flex-1 min-w-0 flex items-center gap-2 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800 hover:border-indigo-200 dark:hover:border-indigo-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition text-left outline-none"
+                          >
+                            <span className="text-base shrink-0">{tool.icon}</span>
+                            <span className="text-xs font-semibold text-slate-700 dark:text-slate-200 truncate">
+                              {tool.title}
+                            </span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setRecordingToolId((prev) => (prev === tool.id ? null : tool.id));
+                            }}
+                            title={
+                              shortcuts[tool.id]
+                                ? `Shortcut: ${shortcuts[tool.id]} — click to change, Backspace to clear`
+                                : "Set a keyboard shortcut"
+                            }
+                            className={`shrink-0 w-8 rounded-xl border flex items-center justify-center text-sm transition outline-none ${
+                              recordingToolId === tool.id
+                                ? "border-indigo-400 bg-indigo-50 dark:bg-indigo-950/40 animate-pulse"
+                                : "border-slate-100 dark:border-slate-800 hover:border-indigo-200 dark:hover:border-indigo-700 hover:bg-slate-50 dark:hover:bg-slate-800"
+                            }`}
+                          >
+                            ⚙️
+                          </button>
+                        </div>
+                        {(recordingToolId === tool.id || shortcuts[tool.id]) && (
+                          <p className="mt-1 text-[10px] text-center font-mono">
+                            {recordingToolId === tool.id ? (
+                              <span className="text-indigo-600 dark:text-indigo-400">Press keys… (Esc to cancel)</span>
+                            ) : (
+                              <span className="text-slate-400 dark:text-slate-500">{shortcuts[tool.id]}</span>
+                            )}
+                          </p>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -259,7 +360,14 @@ export default function ToolboxModal() {
         <div className="fixed inset-0 bg-slate-900/20 backdrop-blur-sm flex items-center justify-center p-4 z-50">
           <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-2xl w-full p-6 shadow-2xl border border-slate-100 dark:border-slate-800 space-y-4 max-h-[85vh] flex flex-col">
             <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3 shrink-0">
-              <h3 className="text-base font-bold text-slate-800 dark:text-slate-100">{activeToolInfo?.title}</h3>
+              <h3 className="text-base font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+                {activeToolInfo?.title}
+                {activeTool && shortcuts[activeTool] && (
+                  <span className="text-[10px] font-mono font-normal text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">
+                    {shortcuts[activeTool]}
+                  </span>
+                )}
+              </h3>
               <button
                 onClick={() => setActiveTool(null)}
                 className="text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-200 transition-colors border-none outline-none"
