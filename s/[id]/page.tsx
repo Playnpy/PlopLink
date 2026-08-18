@@ -18,7 +18,7 @@ export default function SharePage({ params }: SharePageProps) {
 
   useEffect(() => {
     if (!isSupabaseConfigured) {
-      setError("Supabase n'est pas configuré sur ce déploiement.");
+      setError("Supabase is not configured on this deployment.");
       return;
     }
 
@@ -32,7 +32,7 @@ export default function SharePage({ params }: SharePageProps) {
       .then(({ data, error: fetchError }) => {
         if (cancelled) return;
         if (fetchError || !data) {
-          setError("Ce lien de partage est introuvable ou a expiré.");
+          setError("This share link was not found or has expired.");
           return;
         }
         setItems(data.items as PocketItem[]);
@@ -49,7 +49,7 @@ export default function SharePage({ params }: SharePageProps) {
       setCopiedId(item.id);
       setTimeout(() => setCopiedId(null), 2000);
     } catch (err) {
-      console.error("Erreur lors de la copie", err);
+      console.error("Error while copying", err);
     }
   };
 
@@ -83,7 +83,7 @@ export default function SharePage({ params }: SharePageProps) {
           <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">
             Plop<span className="text-indigo-600">Link</span>
           </h1>
-          <p className="mt-2 text-slate-500 font-medium">Contenu partagé depuis votre bibliothèque.</p>
+          <p className="mt-2 text-slate-500 font-medium">Content shared from your library.</p>
         </div>
 
         {error && (
@@ -94,7 +94,7 @@ export default function SharePage({ params }: SharePageProps) {
 
         {!error && items === null && (
           <div className="bg-white rounded-2xl border border-slate-100 border-dashed p-10 text-center text-slate-400">
-            Chargement...
+            Loading...
           </div>
         )}
 
@@ -105,7 +105,7 @@ export default function SharePage({ params }: SharePageProps) {
                 key={item.id}
                 onClick={() => handleItemClick(item)}
                 className="cursor-pointer bg-white p-5 rounded-2xl border border-slate-200/75 shadow-sm hover:shadow-md hover:border-indigo-200 transition-all space-y-3"
-                title={item.category === "Image" ? "Appuyez pour télécharger" : "Appuyez pour copier"}
+                title={item.category === "Image" ? "Tap to download" : "Tap to copy"}
               >
                 <div className="flex items-center justify-between">
                   <span
@@ -116,7 +116,7 @@ export default function SharePage({ params }: SharePageProps) {
                   </span>
                   {copiedId === item.id && (
                     <span className="text-xs font-semibold text-indigo-600">
-                      {item.category === "Image" ? "Téléchargé !" : "Copié !"}
+                      {item.category === "Image" ? "Downloaded!" : "Copied!"}
                     </span>
                   )}
                 </div>
@@ -124,7 +124,7 @@ export default function SharePage({ params }: SharePageProps) {
                   <ItemContent item={item} />
                 </div>
                 {item.category === "Image" && (
-                  <p className="text-[11px] text-slate-400 font-medium">📥 Appuyez sur l'image pour la télécharger</p>
+                  <p className="text-[11px] text-slate-400 font-medium">📥 Tap the image to download it</p>
                 )}
               </div>
             ))}

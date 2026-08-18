@@ -6,9 +6,8 @@ import type { PocketItem } from "@/app/types";
 const STORAGE_KEY = "vide_poche_items";
 
 /**
- * Charge les items depuis le localStorage au montage, puis les persiste
- * automatiquement à chaque changement. Comportement identique à l'ancien
- * code, simplement extrait dans son propre hook.
+ * Loads items from localStorage on mount, then persists them automatically
+ * on every change.
  */
 export function useLocalItems() {
   const [items, setItems] = useState<PocketItem[]>([]);
@@ -20,7 +19,7 @@ export function useLocalItems() {
       try {
         setItems(JSON.parse(savedItems));
       } catch (e) {
-        console.error("Erreur de lecture du cache", e);
+        console.error("Error reading cache", e);
       }
     }
     isLoaded.current = true;
