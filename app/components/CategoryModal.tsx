@@ -11,7 +11,7 @@ export default function CategoryModal({ selectedCategory, onSelect, onClose }: C
     <div className="fixed inset-0 bg-slate-900/20 backdrop-blur-sm flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-100 space-y-5">
         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-          <h3 className="text-base font-bold text-slate-800">Forcer une catégorie</h3>
+          <h3 className="text-base font-bold text-slate-800">Force a category</h3>
           <button onClick={onClose} className="text-slate-400 hover:text-slate-700 transition-colors border-none outline-none">
             ✕
           </button>

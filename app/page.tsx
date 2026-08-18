@@ -15,7 +15,7 @@ import ExtensionPromoBanner from "@/app/components/ExtensionPromoBanner";
 export default function Home() {
   const [inputValue, setInputValue] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<Category>("Texte");
+  const [selectedCategory, setSelectedCategory] = useState<Category>("Text");
   const [attachedImage, setAttachedImage] = useState<string | null>(null);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
@@ -46,7 +46,7 @@ export default function Home() {
     reader.readAsDataURL(file);
   };
 
-  // 🧩 Pré-remplissage depuis l'extension Chrome (lien du type /?add=...)
+  // 🧩 Prefill from the Chrome extension (link like /?add=...)
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const addParam = params.get("add");
@@ -59,7 +59,7 @@ export default function Home() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // 📋 Auto-collage : un clic hors des champs de saisie relit le presse-papiers
+  // 📋 Auto-paste: a click outside input fields re-reads the clipboard
   useEffect(() => {
     const handleGlobalClickAutoPaste = async (e: MouseEvent) => {
       const target = e.target as HTMLElement;
@@ -75,7 +75,7 @@ export default function Home() {
           }
         }
       } catch {
-        console.log("Presse-papiers bloqué ou vide");
+        console.log("Clipboard blocked or empty");
       }
     };
 
@@ -83,7 +83,7 @@ export default function Home() {
     return () => window.removeEventListener("click", handleGlobalClickAutoPaste);
   }, [inputValue]);
 
-  // Re-détecte la catégorie à chaque frappe (sauf si une image est attachée)
+  // Re-detect the category on every keystroke (unless an image is attached)
   useEffect(() => {
     if (inputValue && selectedCategory !== "Image") {
       setSelectedCategory(autoDetectCategory(inputValue));
@@ -91,7 +91,7 @@ export default function Home() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inputValue]);
 
-  // Colle une image depuis le presse-papiers (Ctrl+V)
+  // Paste an image from the clipboard (Ctrl+V)
   useEffect(() => {
     const handlePaste = (e: ClipboardEvent) => {
       const clipboardItems = e.clipboardData?.items;
@@ -120,27 +120,27 @@ export default function Home() {
     } else if (selectedCategory === "Image") {
       itemTitle = inputValue;
     } else if (selectedCategory === "Google Maps") {
-      itemTitle = "Point d'intérêt Google Maps";
+      itemTitle = "Google Maps point of interest";
     }
 
-    const timeString = new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+    const timeString = new Date().toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
 
     const newItem: PocketItem = {
       id: Date.now().toString(),
       category: selectedCategory,
       content: selectedCategory === "Image" && attachedImage ? attachedImage : inputValue,
       title: itemTitle,
-      createdAt: `Aujourd'hui à ${timeString}`,
+      createdAt: `Today at ${timeString}`,
     };
 
     setItems([newItem, ...items]);
     setInputValue("");
     setAttachedImage(null);
-    setSelectedCategory("Texte");
+    setSelectedCategory("Text");
   };
 
   const handleEditTitle = (itemId: string, currentTitle?: string) => {
-    const newAlias = prompt("Entrez un alias ou un titre personnalisé :", currentTitle || "");
+    const newAlias = prompt("Enter a custom alias or title:", currentTitle || "");
     if (newAlias === null) return;
     setItems((prev) =>
       prev.map((item) => (item.id === itemId ? { ...item, title: newAlias.trim() || undefined } : item))
@@ -148,7 +148,7 @@ export default function Home() {
   };
 
   const handleDelete = (itemId: string) => {
-    if (window.confirm("Êtes-vous sûr de vouloir supprimer cet élément ?")) {
+    if (window.confirm("Are you sure you want to delete this item?")) {
       setItems((prev) => prev.filter((item) => item.id !== itemId));
     }
   };
@@ -158,10 +158,10 @@ export default function Home() {
     if (item.category === "Image") return;
     try {
       await navigator.clipboard.writeText(item.content);
-      setToastMessage("Contenu copié dans le presse-papiers");
+      setToastMessage("Content copied to clipboard");
       setTimeout(() => setToastMessage(null), 2500);
     } catch (err) {
-      console.error("Erreur lors de la copie", err);
+      console.error("Error while copying", err);
     }
   };
 
@@ -193,7 +193,7 @@ export default function Home() {
                 <span className="absolute -right-3 bottom-2 md:bottom-3 w-2.5 h-2.5 md:w-3 md:h-3 bg-orange-500 rounded-full shadow-sm"></span>
               </span>
             </h1>
-            <p className="mt-4 text-lg text-slate-500 font-medium">Votre vide-poche intelligent pour capturer le web.</p>
+            <p className="mt-4 text-lg text-slate-500 font-medium">Your smart pocket dump for capturing the web.</p>
           </div>
 
           <ExtensionPromoBanner />
@@ -205,7 +205,7 @@ export default function Home() {
             onRemoveImage={() => {
               setAttachedImage(null);
               setInputValue("");
-              setSelectedCategory("Texte");
+              setSelectedCategory("Text");
             }}
             selectedCategory={selectedCategory}
             onOpenCategoryModal={() => setIsCategoryModalOpen(true)}
@@ -215,7 +215,7 @@ export default function Home() {
 
           <div className="pt-4">
             <h2 className="text-xl font-extrabold text-slate-800 mb-6 px-1 flex items-center space-x-2">
-              <span>{searchQuery ? "Résultats de recherche" : "Flux récent"}</span>
+              <span>{searchQuery ? "Search results" : "Recent feed"}</span>
               <span className="text-sm font-medium text-slate-400 bg-slate-200/50 px-2.5 py-0.5 rounded-full">
                 {displayedItems.length}
               </span>
@@ -224,8 +224,8 @@ export default function Home() {
             {displayedItems.length === 0 ? (
               <div className="bg-white rounded-2xl border border-slate-100 border-dashed p-12 flex flex-col items-center justify-center text-center">
                 <span className="text-4xl mb-4 opacity-50">🔍</span>
-                <p className="text-slate-500 font-medium">Aucun tiroir ne contient cet élément.</p>
-                <p className="text-sm text-slate-400 mt-1">Essaye avec un autre mot-clé ou vide la recherche.</p>
+                <p className="text-slate-500 font-medium">No drawer contains this item.</p>
+                <p className="text-sm text-slate-400 mt-1">Try a different keyword or clear the search.</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">

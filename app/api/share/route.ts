@@ -5,17 +5,17 @@ import { CATEGORIES, type PocketItem } from "@/app/types";
 export const runtime = "nodejs";
 
 const MAX_ITEMS = 20;
-const MAX_CONTENT_LENGTH = 500_000; // ~500 Ko par élément (couvre des images raisonnables en base64)
-const MAX_PAYLOAD_BYTES = 4_000_000; // 4 Mo au total par partage
+const MAX_CONTENT_LENGTH = 500_000; // ~500 KB per item (covers reasonably-sized base64 images)
+const MAX_PAYLOAD_BYTES = 4_000_000; // 4 MB total per share
 const SHARE_TTL_DAYS = 7;
 
 const WINDOW_MS = 60_000;
 const MAX_REQUESTS_PER_WINDOW = 5;
 
-// ⚠️ Limiteur en mémoire : suffisant comme première barrière contre le spam,
-// mais il repart de zéro à chaque redémarrage/instance froide de la fonction
-// serverless. Pour une vraie protection à l'échelle, remplacez par un store
-// partagé (ex. Upstash Redis) si le trafic augmente.
+// ⚠️ In-memory limiter: good enough as a first line of defense against
+// spam, but it resets on every cold start/serverless instance restart. For
+// real protection at scale, replace it with a shared store (e.g. Upstash
+// Redis) once traffic grows.
 const requestLog = new Map<string, number[]>();
 
 function isRateLimited(ip: string): boolean {
@@ -46,36 +46,36 @@ function isValidItem(item: unknown): item is PocketItem {
 
 export async function POST(request: Request) {
   if (!isSupabaseAdminConfigured) {
-    return NextResponse.json({ error: "Service indisponible pour le moment." }, { status: 503 });
+    return NextResponse.json({ error: "Service temporarily unavailable." }, { status: 503 });
   }
 
   const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
   if (isRateLimited(ip)) {
-    return NextResponse.json({ error: "Trop de requêtes, réessayez dans une minute." }, { status: 429 });
+    return NextResponse.json({ error: "Too many requests, try again in a minute." }, { status: 429 });
   }
 
   let body: unknown;
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: "Corps de requête invalide." }, { status: 400 });
+    return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
   }
 
   const items = (body as { items?: unknown })?.items;
   if (!Array.isArray(items) || items.length === 0) {
-    return NextResponse.json({ error: "Aucun élément à partager." }, { status: 400 });
+    return NextResponse.json({ error: "No items to share." }, { status: 400 });
   }
   if (items.length > MAX_ITEMS) {
-    return NextResponse.json({ error: `Maximum ${MAX_ITEMS} éléments par partage.` }, { status: 400 });
+    return NextResponse.json({ error: `Maximum ${MAX_ITEMS} items per share.` }, { status: 400 });
   }
 
   const payloadSize = new TextEncoder().encode(JSON.stringify(items)).length;
   if (payloadSize > MAX_PAYLOAD_BYTES) {
-    return NextResponse.json({ error: "Le contenu sélectionné est trop volumineux." }, { status: 413 });
+    return NextResponse.json({ error: "The selected content is too large." }, { status: 413 });
   }
 
   if (!items.every(isValidItem)) {
-    return NextResponse.json({ error: "Format d'élément invalide." }, { status: 400 });
+    return NextResponse.json({ error: "Invalid item format." }, { status: 400 });
   }
 
   const expiresAt = new Date(Date.now() + SHARE_TTL_DAYS * 24 * 60 * 60 * 1000).toISOString();
@@ -87,8 +87,8 @@ export async function POST(request: Request) {
     .single();
 
   if (error || !data) {
-    console.error("Erreur lors de la création du partage", error);
-    return NextResponse.json({ error: "Échec de l'enregistrement." }, { status: 500 });
+    console.error("Error creating the share", error);
+    return NextResponse.json({ error: "Failed to save." }, { status: 500 });
   }
 
   return NextResponse.json({ id: data.id });

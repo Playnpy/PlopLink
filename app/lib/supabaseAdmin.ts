@@ -4,19 +4,19 @@ import { createClient } from "@supabase/supabase-js";
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
 
-/** true si la clé service_role est configurée côté serveur. */
+/** true if the service_role key is configured server-side. */
 export const isSupabaseAdminConfigured = Boolean(supabaseUrl && serviceRoleKey);
 
 if (!isSupabaseAdminConfigured) {
   console.warn(
-    "SUPABASE_SERVICE_ROLE_KEY n'est pas configurée : l'API /api/share ne pourra pas créer de partages."
+    "SUPABASE_SERVICE_ROLE_KEY is not configured: the /api/share endpoint won't be able to create shares."
   );
 }
 
 /**
- * ⚠️ Ce client utilise la clé service_role, qui contourne toutes les règles
- * RLS. Il ne doit JAMAIS être importé depuis un fichier "use client" ni
- * exposé au navigateur — uniquement depuis app/api/**\/route.ts.
+ * ⚠️ This client uses the service_role key, which bypasses all RLS rules.
+ * NEVER import this file from a "use client" component or expose it to the
+ * browser — only from app/api/**\/route.ts.
  */
 export const supabaseAdmin = createClient(
   supabaseUrl || "https://placeholder.supabase.co",

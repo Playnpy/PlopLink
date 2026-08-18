@@ -54,7 +54,7 @@ export default function Sidebar({
             type="text"
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Recherche ..."
+            placeholder="Search..."
             className="w-full pl-9 pr-8 py-2 bg-slate-50 text-slate-800 placeholder-slate-400 border-0 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all"
           />
           {searchQuery && (
@@ -75,12 +75,12 @@ export default function Sidebar({
           className="prevent-autopaste w-full flex items-center justify-center space-x-2 px-3 py-2.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl text-sm font-semibold transition active:scale-95"
         >
           <span>📤</span>
-          <span>Envoyer sur mon téléphone</span>
+          <span>Send to my phone</span>
         </button>
       </div>
 
       <div className="p-4 flex-1 overflow-y-auto custom-scrollbar">
-        <h3 className="text-[11px] font-bold tracking-wider text-slate-400 uppercase mb-3 px-2">Mes Tiroirs</h3>
+        <h3 className="text-[11px] font-bold tracking-wider text-slate-400 uppercase mb-3 px-2">My Drawers</h3>
 
         <nav className="space-y-1.5">
           {CATEGORIES.map((cat) => {
@@ -120,7 +120,7 @@ export default function Sidebar({
                 {isOpen && (
                   <div className="pl-9 pr-2 py-1 space-y-1.5 max-h-60 overflow-y-auto mb-2">
                     {filteredItems.length === 0 ? (
-                      <p className="text-[11px] text-slate-400 italic py-1">Aucun résultat</p>
+                      <p className="text-[11px] text-slate-400 italic py-1">No results</p>
                     ) : (
                       filteredItems.map((item) => (
                         <SidebarItemRow

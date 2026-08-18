@@ -26,10 +26,9 @@ export default function ExtensionPromoBanner() {
       <div className="flex items-center gap-3">
         <span className="text-2xl shrink-0">🧩</span>
         <p className="text-sm text-indigo-900">
-          <span className="font-bold">Nouveau : extension Chrome PlopLink.</span>{" "}
+          <span className="font-bold">New: PlopLink Chrome extension.</span>{" "}
           <span className="text-indigo-700">
-            Rangez le contenu du presse-papiers dans votre bibliothèque sans ouvrir le site. Bientôt disponible au
-            téléchargement.
+            Save clipboard content to your library without opening the site. Coming soon for download.
           </span>
         </p>
       </div>
@@ -37,11 +36,10 @@ export default function ExtensionPromoBanner() {
         type="button"
         onClick={handleDismiss}
         className="shrink-0 text-indigo-400 hover:text-indigo-700 transition-colors border-none outline-none text-sm"
-        title="Masquer"
+        title="Dismiss"
       >
         ✕
       </button>
     </div>
   );
 }
-
