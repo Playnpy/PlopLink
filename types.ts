@@ -13,6 +13,7 @@ export interface PocketItem {
   content: string;
   title?: string;
   createdAt: string;
+  pinned?: boolean;
 }
 
 export const CATEGORIES: readonly Category[] = [
