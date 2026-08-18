@@ -79,7 +79,7 @@ export default function ToolboxModal() {
             <div key={category.id} className="relative">
               {/* Flyout of tools, opens to the left of the category bubble on click */}
               <div
-                className={`absolute right-full mr-3 top-1/2 -translate-y-1/2 flex items-center gap-2 transition-all duration-150 ease-out ${
+                className={`absolute right-full top-1/2 -translate-y-1/2 flex items-center gap-2 pr-3 transition-all duration-150 ease-out ${
                   openCategory === category.id
                     ? "opacity-100 translate-x-0 pointer-events-auto"
                     : "opacity-0 translate-x-2 pointer-events-none"
