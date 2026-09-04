@@ -10,9 +10,20 @@ interface ItemCardProps {
   onTogglePin: (id: string) => void;
   onOpenQR: (item: PocketItem) => void;
   onOpenTools: (item: PocketItem) => void;
+  // Omit to hide the move button entirely (e.g. when there are no custom
+  // drawers to move the item into yet).
+  onOpenMove?: (item: PocketItem) => void;
 }
 
-export default function ItemCard({ item, onCopy, onDelete, onTogglePin, onOpenQR, onOpenTools }: ItemCardProps) {
+export default function ItemCard({
+  item,
+  onCopy,
+  onDelete,
+  onTogglePin,
+  onOpenQR,
+  onOpenTools,
+  onOpenMove,
+}: ItemCardProps) {
   const canShowQR = item.category !== "Image";
 
   return (
@@ -62,6 +73,18 @@ export default function ItemCard({ item, onCopy, onDelete, onTogglePin, onOpenQR
 
       <div className="flex flex-wrap items-center gap-1.5 pt-1 border-t border-slate-50 dark:border-slate-800 -mx-1 px-1">
         <QuickActions item={item} />
+        {onOpenMove && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onOpenMove(item);
+            }}
+            className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-1 rounded-lg bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition border-none outline-none"
+          >
+            <span>📂</span>
+            <span>Move</span>
+          </button>
+        )}
         {canShowQR && (
           <button
             onClick={(e) => {

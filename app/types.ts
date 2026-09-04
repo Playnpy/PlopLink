@@ -14,6 +14,20 @@ export interface PocketItem {
   title?: string;
   createdAt: string;
   pinned?: boolean;
+  // Optional manual assignment to a user-created drawer (see CustomDrawer
+  // below). Unlike `category`, this is never set automatically.
+  drawerId?: string;
+}
+
+/**
+ * A user-created drawer: just a name + an emoji logo. Items are placed in
+ * it manually (via "Move to drawer") — there's no auto-detection for these,
+ * unlike the built-in Category system above.
+ */
+export interface CustomDrawer {
+  id: string;
+  name: string;
+  icon: string;
 }
 
 export const CATEGORIES: readonly Category[] = [

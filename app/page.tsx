@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, type FormEvent, type MouseEvent as ReactMo
 import type { Category, PocketItem } from "@/app/types";
 import { autoDetectCategory, getYouTubeVideoTitle } from "@/app/lib/categoryDetection";
 import { useLocalItems } from "@/app/hooks/useLocalItems";
+import { useCustomDrawers } from "@/app/hooks/useCustomDrawers";
 import Sidebar from "@/app/components/Sidebar";
 import ComposerForm from "@/app/components/ComposerForm";
 import CategoryModal from "@/app/components/CategoryModal";
@@ -15,6 +16,8 @@ import QRCodeModal from "@/app/components/QRCodeModal";
 import TextToolsModal from "@/app/components/TextToolsModal";
 import ThemeToggle from "@/app/components/ThemeToggle";
 import ToolboxModal from "@/app/components/ToolboxModal";
+import NewDrawerModal from "@/app/components/NewDrawerModal";
+import MoveToDrawerModal from "@/app/components/MoveToDrawerModal";
 
 export default function Home() {
   const [inputValue, setInputValue] = useState("");
@@ -26,8 +29,11 @@ export default function Home() {
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [openSidebarCategories, setOpenSidebarCategories] = useState<Record<string, boolean>>({});
   const [items, setItems] = useLocalItems();
+  const [customDrawers, setCustomDrawers] = useCustomDrawers();
   const [qrModalItem, setQrModalItem] = useState<PocketItem | null>(null);
   const [toolsModalItem, setToolsModalItem] = useState<PocketItem | null>(null);
+  const [isNewDrawerModalOpen, setIsNewDrawerModalOpen] = useState(false);
+  const [moveModalItem, setMoveModalItem] = useState<PocketItem | null>(null);
   // True once the user manually forces a category via the category modal —
   // prevents every subsequent keystroke from silently re-detecting and
   // overriding their explicit choice.
@@ -216,12 +222,32 @@ export default function Home() {
     setItems((prev) => prev.map((item) => (item.id === itemId ? { ...item, pinned: !item.pinned } : item)));
   };
 
+  const handleCreateDrawer = (name: string, icon: string) => {
+    setCustomDrawers((prev) => [...prev, { id: Date.now().toString(), name, icon }]);
+    setIsNewDrawerModalOpen(false);
+  };
+
+  const handleDeleteDrawer = (drawerId: string) => {
+    if (!window.confirm("Delete this drawer? Items inside it won't be deleted, just unfiled.")) return;
+    setCustomDrawers((prev) => prev.filter((drawer) => drawer.id !== drawerId));
+    setItems((prev) =>
+      prev.map((item) => (item.drawerId === drawerId ? { ...item, drawerId: undefined } : item))
+    );
+  };
+
+  const handleMoveToDrawer = (itemId: string, drawerId: string | null) => {
+    setItems((prev) =>
+      prev.map((item) => (item.id === itemId ? { ...item, drawerId: drawerId ?? undefined } : item))
+    );
+  };
+
   return (
     <div className="min-h-screen bg-[#F8F9FA] dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex font-sans relative">
       <Sidebar
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         displayedItems={displayedItems}
+        customDrawers={customDrawers}
         openSidebarCategories={openSidebarCategories}
         onToggleCategory={toggleSidebarCategory}
         onCopy={handleCopyContent}
@@ -229,6 +255,9 @@ export default function Home() {
         onDelete={handleDelete}
         onTogglePin={handleTogglePin}
         onOpenShare={() => setIsShareModalOpen(true)}
+        onOpenNewDrawer={() => setIsNewDrawerModalOpen(true)}
+        onDeleteDrawer={handleDeleteDrawer}
+        onOpenMove={setMoveModalItem}
       />
 
       <main className="flex-1 flex flex-col items-center p-6 sm:p-10 overflow-y-auto">
@@ -288,6 +317,7 @@ export default function Home() {
                     onTogglePin={handleTogglePin}
                     onOpenQR={setQrModalItem}
                     onOpenTools={setToolsModalItem}
+                    onOpenMove={customDrawers.length > 0 ? setMoveModalItem : undefined}
                   />
                 ))}
               </div>
@@ -314,6 +344,19 @@ export default function Home() {
       {qrModalItem && <QRCodeModal content={qrModalItem.content} onClose={() => setQrModalItem(null)} />}
 
       {toolsModalItem && <TextToolsModal content={toolsModalItem.content} onClose={() => setToolsModalItem(null)} />}
+
+      {isNewDrawerModalOpen && (
+        <NewDrawerModal onCreate={handleCreateDrawer} onClose={() => setIsNewDrawerModalOpen(false)} />
+      )}
+
+      {moveModalItem && (
+        <MoveToDrawerModal
+          item={moveModalItem}
+          drawers={customDrawers}
+          onMove={handleMoveToDrawer}
+          onClose={() => setMoveModalItem(null)}
+        />
+      )}
 
       {toastMessage && <Toast message={toastMessage} />}
 

@@ -1,11 +1,12 @@
 import type { MouseEvent } from "react";
-import { CATEGORIES, CATEGORY_ICONS, type PocketItem } from "@/app/types";
+import { CATEGORIES, CATEGORY_ICONS, type CustomDrawer, type PocketItem } from "@/app/types";
 import SidebarItemRow from "@/app/components/SidebarItemRow";
 
 interface SidebarProps {
   searchQuery: string;
   onSearchChange: (value: string) => void;
   displayedItems: PocketItem[];
+  customDrawers: CustomDrawer[];
   openSidebarCategories: Record<string, boolean>;
   onToggleCategory: (cat: string) => void;
   onCopy: (e: MouseEvent, item: PocketItem) => void;
@@ -13,12 +14,16 @@ interface SidebarProps {
   onDelete: (id: string) => void;
   onTogglePin: (id: string) => void;
   onOpenShare: () => void;
+  onOpenNewDrawer: () => void;
+  onDeleteDrawer: (id: string) => void;
+  onOpenMove: (item: PocketItem) => void;
 }
 
 export default function Sidebar({
   searchQuery,
   onSearchChange,
   displayedItems,
+  customDrawers,
   openSidebarCategories,
   onToggleCategory,
   onCopy,
@@ -26,6 +31,9 @@ export default function Sidebar({
   onDelete,
   onTogglePin,
   onOpenShare,
+  onOpenNewDrawer,
+  onDeleteDrawer,
+  onOpenMove,
 }: SidebarProps) {
   return (
     <aside className="w-72 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col hidden md:flex shrink-0 z-10 shadow-sm">
@@ -82,7 +90,17 @@ export default function Sidebar({
       </div>
 
       <div className="p-4 flex-1 overflow-y-auto custom-scrollbar">
-        <h3 className="text-[11px] font-bold tracking-wider text-slate-400 dark:text-slate-500 uppercase mb-3 px-2">My Drawers</h3>
+        <div className="flex items-center justify-between mb-3 px-2">
+          <h3 className="text-[11px] font-bold tracking-wider text-slate-400 dark:text-slate-500 uppercase">My Drawers</h3>
+          <button
+            type="button"
+            onClick={onOpenNewDrawer}
+            title="New drawer"
+            className="prevent-autopaste w-5 h-5 flex items-center justify-center rounded-md text-slate-400 dark:text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition text-sm font-bold leading-none"
+          >
+            +
+          </button>
+        </div>
 
         <nav className="space-y-1.5">
           {CATEGORIES.map((cat) => {
@@ -132,6 +150,79 @@ export default function Sidebar({
                           onEditTitle={onEditTitle}
                           onDelete={onDelete}
                           onTogglePin={onTogglePin}
+                          onOpenMove={customDrawers.length > 0 ? onOpenMove : undefined}
+                        />
+                      ))
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+
+          {customDrawers.map((drawer) => {
+            // Manual placement only — never auto-detected, unlike the
+            // built-in categories above.
+            const filteredItems = displayedItems.filter((item) => item.drawerId === drawer.id);
+            const isOpen = !!openSidebarCategories[drawer.id];
+
+            return (
+              <div key={drawer.id} className="rounded-xl overflow-hidden group/drawer">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onToggleCategory(drawer.id);
+                  }}
+                  className="w-full flex items-center justify-between p-2.5 hover:bg-slate-50 dark:hover:bg-slate-800 transition text-left rounded-lg group"
+                >
+                  <div className="flex items-center space-x-3 min-w-0">
+                    <span className="text-lg opacity-80 group-hover:opacity-100 transition-opacity shrink-0">
+                      {drawer.icon}
+                    </span>
+                    <span className="text-sm font-semibold text-slate-700 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors truncate">
+                      {drawer.name}
+                    </span>
+                  </div>
+                  <div className="flex items-center space-x-2 shrink-0">
+                    {filteredItems.length > 0 && (
+                      <span className="text-[10px] bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-300 px-2 py-0.5 rounded-full font-bold">
+                        {filteredItems.length}
+                      </span>
+                    )}
+                    <span
+                      role="button"
+                      title="Delete drawer"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onDeleteDrawer(drawer.id);
+                      }}
+                      className="opacity-0 group-hover/drawer:opacity-100 text-slate-300 dark:text-slate-600 hover:text-red-500 transition text-xs"
+                    >
+                      ✕
+                    </span>
+                    <span className="text-xs text-slate-300 dark:text-slate-600 group-hover:text-slate-500 dark:group-hover:text-slate-400 transition-colors">
+                      {isOpen ? "▲" : "▼"}
+                    </span>
+                  </div>
+                </button>
+
+                {isOpen && (
+                  <div className="pl-9 pr-2 py-1 space-y-1.5 max-h-60 overflow-y-auto mb-2">
+                    {filteredItems.length === 0 ? (
+                      <p className="text-[11px] text-slate-400 dark:text-slate-500 italic py-1">
+                        Empty — move items here from their card.
+                      </p>
+                    ) : (
+                      filteredItems.map((item) => (
+                        <SidebarItemRow
+                          key={item.id}
+                          item={item}
+                          onCopy={onCopy}
+                          onEditTitle={onEditTitle}
+                          onDelete={onDelete}
+                          onTogglePin={onTogglePin}
+                          onOpenMove={onOpenMove}
                         />
                       ))
                     )}

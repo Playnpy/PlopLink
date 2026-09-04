@@ -8,9 +8,19 @@ interface SidebarItemRowProps {
   onEditTitle: (id: string, currentTitle?: string) => void;
   onDelete: (id: string) => void;
   onTogglePin: (id: string) => void;
+  // Omit to hide the move button entirely (e.g. when there are no custom
+  // drawers to move the item into yet).
+  onOpenMove?: (item: PocketItem) => void;
 }
 
-export default function SidebarItemRow({ item, onCopy, onEditTitle, onDelete, onTogglePin }: SidebarItemRowProps) {
+export default function SidebarItemRow({
+  item,
+  onCopy,
+  onEditTitle,
+  onDelete,
+  onTogglePin,
+  onOpenMove,
+}: SidebarItemRowProps) {
   return (
     <div
       onClick={(e) => onCopy(e, item)}
@@ -45,6 +55,19 @@ export default function SidebarItemRow({ item, onCopy, onEditTitle, onDelete, on
           >
             ✏️
           </button>
+          {onOpenMove && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onOpenMove(item);
+              }}
+              className="opacity-0 group-hover/item:opacity-100 text-slate-400 hover:text-indigo-600 transition"
+              title="Move to drawer"
+            >
+              📂
+            </button>
+          )}
           <button
             type="button"
             onClick={(e) => {
