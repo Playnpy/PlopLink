@@ -43,7 +43,12 @@ export function useLocalItems() {
 
   useEffect(() => {
     if (isLoaded.current) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+      } catch (e) {
+        // Most likely a quota overflow (large base64 images add up fast).
+        console.error("Unable to save the library: storage quota may be full.", e);
+      }
     }
   }, [items]);
 

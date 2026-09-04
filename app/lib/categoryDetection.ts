@@ -27,8 +27,10 @@ export function autoDetectCategory(text: string): Category {
   const trimmed = text.trim();
 
   if (
-    trimmed.includes("http://googleusercontent.com/maps.google.com/") ||
-    trimmed.includes("goo.gl/maps")
+    trimmed.includes("goo.gl/maps") ||
+    trimmed.includes("maps.app.goo.gl") ||
+    trimmed.includes("google.com/maps") ||
+    trimmed.includes("maps.google.com")
   ) {
     return "Google Maps";
   }
